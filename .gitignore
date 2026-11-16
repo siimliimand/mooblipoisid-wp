@@ -1,0 +1,14 @@
+# WordPress environment-specific files (DDEV/plain Docker recreate these on start)
+public/wp-config.php
+public/wp-config-ddev.php
+public/wp-content/uploads/
+public/wp-content/upgrade/
+public/wp-content/advanced-cache.php
+public/wp-content/object-cache.php
+public/.htaccess
+
+# OS / editor noise
+.DS_Store
+*.log
+.idea/
+.vscode/

@@ -5,7 +5,7 @@ Description: Mööblipoisid OÜ child theme for Kadence. Owns the design tokens 
 Author: Mööblipoisid OÜ
 Author URI: https://mooblipoisid.ee
 Template: kadence
-Version: 1.0.0
+Version: 1.1.0
 License: GNU General Public License v2 or later
 Text Domain: mooblipoisid-child
 */
@@ -45,6 +45,24 @@ Text Domain: mooblipoisid-child
 	--mp-margin-tablet: 3rem;
 	--mp-margin-desktop: 5rem;
 	--mp-radius: 0.25rem;
+}
+
+/* ==========================================================================
+   2. Full-bleed front-page layout
+   Sections span the viewport; their content keeps the prototype gutters.
+   ========================================================================== */
+.home .content-container.site-container {
+	max-width: none;
+}
+
+.home .entry-content-wrap {
+	padding: 0;
+}
+
+/* Header logo: match the prototype (h-8 = 32px, width auto). */
+.site-branding a.brand img.custom-logo {
+	max-height: 32px;
+	width: auto;
 }
 
 /* ==========================================================================
@@ -1066,4 +1084,29 @@ body {
 	font-weight: 500;
 	color: var(--mp-on-surface);
 	margin: 0 0 0.5rem;
+}
+
+/* ==========================================================================
+   13. Full-bleed gutters (after base rules so shorthand padding doesn't win)
+   ========================================================================== */
+.mp-hero,
+.mp-section {
+	padding-left: var(--mp-margin);
+	padding-right: var(--mp-margin);
+}
+
+@media (min-width: 768px) {
+	.mp-hero,
+	.mp-section {
+		padding-left: var(--mp-margin-tablet);
+		padding-right: var(--mp-margin-tablet);
+	}
+}
+
+@media (min-width: 1024px) {
+	.mp-hero,
+	.mp-section {
+		padding-left: var(--mp-margin-desktop);
+		padding-right: var(--mp-margin-desktop);
+	}
 }

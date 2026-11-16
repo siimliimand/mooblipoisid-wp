@@ -5,7 +5,7 @@ Description: Mööblipoisid OÜ child theme for Kadence. Owns the design tokens 
 Author: Mööblipoisid OÜ
 Author URI: https://mooblipoisid.ee
 Template: kadence
-Version: 1.1.0
+Version: 1.2.0
 License: GNU General Public License v2 or later
 Text Domain: mooblipoisid-child
 */
@@ -1109,4 +1109,103 @@ body {
 		padding-left: var(--mp-margin-desktop);
 		padding-right: var(--mp-margin-desktop);
 	}
+}
+
+/* ==========================================================================
+   14. Ranges section (#ranges) — align with prototype #hospitality-range
+   ========================================================================== */
+
+/* Card icon: unsized inline SVG would render ~600px — pin to 24px, primary */
+.mp-range__title svg {
+	width: 24px;
+	height: 24px;
+	flex: none;
+	color: var(--mp-primary);
+}
+
+/* Card title: uppercase label (beats Kadence .entry-content h3) */
+.entry-content .mp-range__title {
+	font-family: 'Plus Jakarta Sans', sans-serif;
+	font-size: 11px;
+	line-height: 16px;
+	font-weight: 600;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--mp-primary);
+	margin: 0 0 var(--mp-space-md);
+}
+
+/* Item titles: headline-sm 20px/w500 (beats Kadence .entry-content h4) */
+.entry-content .mp-range__item h4 {
+	font-size: 20px;
+	line-height: 28px;
+	font-weight: 500;
+}
+
+/* List: 2-col grid >=640px, no Kadence ul indent (beats .entry-content ul) */
+.entry-content .mp-range__list {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--mp-space-md);
+	padding: 0;
+	margin: 0;
+}
+
+@media (min-width: 640px) {
+	.entry-content .mp-range__list {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+/* Card box: surface bg, 40px padding, shadow-sm, no border/radius */
+.entry-content .mp-range {
+	background: var(--mp-surface);
+	border: 0;
+	border-radius: 0;
+	padding: var(--mp-space-lg);
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Section header: stacked (prototype) — scoped, other sections differ */
+#ranges .mp-section-head {
+	flex-direction: column;
+	align-items: flex-start;
+	border-bottom: 0;
+	padding-bottom: 0;
+	margin-bottom: var(--mp-space-lg);
+}
+
+#ranges .mp-section-head__intro {
+	max-width: 672px;
+}
+
+/* Section hairlines (prototype border-y) */
+#ranges {
+	border-top: 1px solid var(--mp-surface-container);
+	border-bottom: 1px solid var(--mp-surface-container);
+}
+
+/* 2-col card breakpoint at lg (1024px) like prototype lg:grid-cols-2 */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+	.mp-ranges {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* ==========================================================================
+   15. Global alignment with prototype tokens
+   ========================================================================== */
+
+/* Eyebrows are label-sm primary in every prototype section */
+.mp-eyebrow {
+	font-size: 11px;
+	line-height: 16px;
+	font-weight: 600;
+	letter-spacing: 0.12em;
+	color: var(--mp-primary);
+}
+
+/* Single gutter: sections already carry the prototype inline padding */
+.mp-section > .mp-container {
+	padding-inline: 0;
 }

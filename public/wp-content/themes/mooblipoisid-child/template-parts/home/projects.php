@@ -6,7 +6,9 @@
  * Materials & Features terms are the card tags, the `mp_location_type` entry
  * detail is the small meta line, the title is the card name and the short
  * description is the card text. Entries render in menu_order ASC (the post date
- * breaks ties), so the first entry is the lead card (.mp-project--lead).
+ * breaks ties), so the first entry is the lead card (.mp-project--lead). The
+ * `lang` query var keeps the cards in the active language, and adds the site
+ * language as a fallback while a language has no projects of its own yet.
  *
  * @package mooblipoisid-child
  */
@@ -20,6 +22,7 @@ $mp_project_query = new WP_Query(
 		'posts_per_page'         => -1,
 		'orderby'                => 'menu_order',
 		'order'                  => 'ASC',
+		'lang'                   => mooblipoisid_section_languages( 'project' ),
 		'ignore_sticky_posts'    => true,
 		'no_found_rows'          => true,
 		'update_post_term_cache' => true,
@@ -38,8 +41,8 @@ $mp_project_index = 0;
   <div class="mp-container">
     <div class="mp-section-head">
       <div>
-        <span class="mp-eyebrow">Selected Commissions</span>
-        <h2 class="mp-headline-lg">Recent Venue &amp; Retail Projects</h2>
+        <span class="mp-eyebrow"><?php esc_html_e( 'Valitud tööd', 'mooblipoisid-child' ); ?></span>
+        <h2 class="mp-headline-lg"><?php esc_html_e( 'Hiljutised äri- ja jaemüügiprojektid', 'mooblipoisid-child' ); ?></h2>
       </div>
     </div>
     <div class="mp-projects">
@@ -47,15 +50,30 @@ $mp_project_index = 0;
         <?php
         $mp_project_query->the_post();
 
-        $mp_project_tags = wp_get_post_terms( get_the_ID(), 'project_tag' );
-        if ( is_wp_error( $mp_project_tags ) ) {
-            $mp_project_tags = array();
-        }
-
-        // Tags show in the order they were added to the project: the term
+		// Tags show in the order they were added to the project: the term
         // relationship id is the creation order, the term name breaks ties.
-        foreach ( $mp_project_tags as $mp_project_tag ) {
-            $mp_project_tag->mp_sort_order = (int) $mp_project_tag->term_taxonomy_id;
+        // The relationships are read directly (`get_the_terms()` sorts by term
+        // id, and the ids of terms created later — e.g. translations — are not
+        // in creation order).
+        global $wpdb;
+
+        $mp_project_tags = array();
+        $mp_project_tag_rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT tt.term_id, tr.term_taxonomy_id AS tt_id FROM {$wpdb->term_relationships} AS tr
+                 INNER JOIN {$wpdb->term_taxonomy} AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
+                 WHERE tr.object_id = %d AND tt.taxonomy = 'project_tag' ORDER BY tr.term_taxonomy_id ASC",
+                get_the_ID()
+            )
+        );
+
+        foreach ( (array) $mp_project_tag_rows as $mp_project_tag_row ) {
+            $mp_project_tag = get_term( (int) $mp_project_tag_row->term_id, 'project_tag' );
+            if ( ! $mp_project_tag instanceof WP_Term ) {
+                continue;
+            }
+            $mp_project_tag->mp_sort_order = (int) $mp_project_tag_row->tt_id;
+            $mp_project_tags[] = $mp_project_tag;
         }
         $mp_project_tags = wp_list_sort( $mp_project_tags, array( 'mp_sort_order' => 'ASC', 'name' => 'ASC' ) );
         ?>
@@ -76,7 +94,7 @@ $mp_project_index = 0;
           <span class="mp-project__meta"><?php echo esc_html( get_post_meta( get_the_ID(), 'mp_location_type', true ) ); ?></span>
           <h3 class="mp-headline-md"><?php echo esc_html( get_the_title() ); ?></h3>
           <p class="mp-body"><?php echo esc_html( get_the_excerpt() ); ?></p>
-          <a class="mp-project__link" href="#consultation">Discuss a Similar Project</a>
+          <a class="mp-project__link" href="#consultation"><?php esc_html_e( 'Arutage sarnast projekti', 'mooblipoisid-child' ); ?></a>
         </div>
       </article>
         <?php $mp_project_index++; ?>

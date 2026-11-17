@@ -5,6 +5,8 @@
  * Every fact is a `trust_stat` entry: the title is the big value
  * (.mp-trust__value) and the short description is the caption (.mp-trust__text).
  * Entries render in menu_order ASC (with the post date as the natural tie-break).
+ * The `lang` query var keeps the facts in the active language, and adds the site
+ * language as a fallback while a language has no facts of its own yet.
  *
  * @package mooblipoisid-child
  */
@@ -18,6 +20,7 @@ $mp_trust_query = new WP_Query(
 		'posts_per_page'         => -1,
 		'orderby'                => 'menu_order',
 		'order'                  => 'ASC',
+		'lang'                   => mooblipoisid_section_languages( 'trust_stat' ),
 		'ignore_sticky_posts'    => true,
 		'no_found_rows'          => true,
 		'update_post_term_cache' => false,

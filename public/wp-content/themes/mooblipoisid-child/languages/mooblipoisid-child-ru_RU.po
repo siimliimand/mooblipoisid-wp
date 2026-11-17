@@ -1,0 +1,263 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: mooblipoisid-child 1.0\n"
+"Language: ru_RU\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# ---- Section headings ----
+msgid "Kellele me ehitame"
+msgstr "Для кого мы работаем"
+
+msgid "Mööbel äripindade sisekujunduseks"
+msgstr "Мебель для коммерческих интерьеров"
+
+msgid "Mida me valmistame"
+msgstr "Что мы производим"
+
+msgid "Täielik äriklassi valik"
+msgstr "Полный ассортимент для бизнеса"
+
+msgid "Valitud tööd"
+msgstr "Избранные работы"
+
+msgid "Hiljutised äri- ja jaemüügiprojektid"
+msgstr "Недавние коммерческие и ритейл-проекты"
+
+msgid "Võimekused"
+msgstr "Возможности"
+
+msgid "Üks töökoda. Iga materjal, mida teie koht vajab."
+msgstr "Одна мастерская. Любой материал, который нужно вашему заведению."
+
+msgid "Protsess"
+msgstr "Процесс"
+
+msgid "Briefist avamispäevani"
+msgstr "От брифа до дня открытия"
+
+msgid "Klientide lood"
+msgstr "Истории клиентов"
+
+msgid "Mida meie kliendid ütlevad"
+msgstr "Что говорят наши клиенты"
+
+# ---- Intro paragraphs ----
+msgid "Iga koht on erinev, kuid nõudmised on samad: pikad lahtiolekuajad, pidev kasutus ja bränd, mis peab juba esimesest päevast õige välja nägema."
+msgstr "Каждое заведение уникально, но требования одни и те же: долгие часы работы, постоянная нагрузка и бренд, который должен выглядеть правильно с первого дня."
+
+msgid "Valmistatud teie jooniste järgi või koostöös teie arhitektiga ning toodetud täieliku paketina, nii et kõik sobib omavahel kokku paigalduspäeval."
+msgstr "Изготавливается по вашим чертежам или в сотрудничестве с вашим архитектором и производится единым комплектом, чтобы всё идеально сошлось в день монтажа."
+
+msgid "Baar ei ole harva ainult puit. Kuna puit, metall ja kiv valmistatakse kõik meie enda töökodades, saabuvad osad viimistletuna, omavahel sobivatena ja paigaldusvalmisena, ilma tarnijate vahel jooksmiseta."
+msgstr "Бар — это редко только дерево. Поскольку дерево, металл и камень мы производим сами, детали приходят отделанными, сочетающимися и готовыми к монтажу — без беготни между поставщиками."
+
+msgid "Töötame teie siseviimistluse graafiku järgi, koordineerime teie arhitekti ja töövõtjatega ning paigaldame teie avamiskuupäeva ümber."
+msgstr "Мы работаем по вашему графику отделки, координируем действия с архитектором и подрядчиками и монтируем с учётом вашей даты открытия."
+
+# ---- Sector cards ----
+msgid "Kohvikud, baarid ja restoranid"
+msgstr "Кофейни, бары и рестораны"
+
+msgid "Jaemüük ja kaubanduslik sisekujundus"
+msgstr "Ритейл и торговые интерьеры"
+
+msgid "Eraköögid"
+msgstr "Частные кухни"
+
+msgid "Jaekauplused"
+msgstr "Магазины"
+
+msgid "Vaata toitlustusvalikut"
+msgstr "Смотреть ассортимент для общепита"
+
+msgid "Vaata jaemüügivalikut"
+msgstr "Смотреть ассортимент для ритейла"
+
+msgid "Arutage sarnast projekti"
+msgstr "Обсудить похожий проект"
+
+# ---- Ethos ----
+msgid "Oma tootmine"
+msgstr "Собственное производство"
+
+msgid "Puit, metall ja kiv ühe katuse all Tallinnas"
+msgstr "Дерево, металл и камень под одной крышей в Таллине"
+
+msgid "Valmis kandmiseks"
+msgstr "Готово к нагрузке"
+
+msgid "Kuumus- ja kriipimiskindlad pealsed, tugevdatud liited ja äriklassi furnituur igapäevaseks kasutamiseks."
+msgstr "Стойкие к нагреву и царапинам столешницы, усиленные соединения и фурнитура коммерческого класса для ежедневного использования."
+
+msgid "Üks meeskond, algusest lõpuni"
+msgstr "Одна команда от начала до конца"
+
+msgid "Inimesed, kes teie esemed disainivad, valmistavad ja paigaldavad need ka ise, nii et üks kontaktisik vastutab kogu projekti eest."
+msgstr "Люди, которые проектируют ваши изделия, также их изготавливают и монтируют, поэтому один контакт отвечает за весь проект."
+
+# ---- Consultation ----
+msgid "Tootmisjuht — Andre Merila"
+msgstr "Руководитель производства — Андре Мерила"
+
+msgid "Projektijuht — Marilyn Salu"
+msgstr "Руководитель проектов — Мэрилин Салу"
+
+msgid "Töökoja ja näidiste külastus"
+msgstr "Посещение мастерской и образцов"
+
+msgid "Tutvuge materjalide, viimistluste ja töös olevate projektidega meie töökojas aadressil Võidu 75, Tallinn, kokkuleppel."
+msgstr "Ознакомьтесь с материалами, отделками и проектами в работе в нашей мастерской по адресу Võidu 75, Таллин, по предварительной договорённости."
+
+# ---- Enquiry form ----
+msgid "Jätke see väli tühjaks"
+msgstr "Оставьте это поле пустым"
+
+msgid "Aitäh. Teie päring on edastatud meie projektitiimile. Vaatame teie briefi üle 48 tunni jooksul."
+msgstr "Спасибо. Ваш запрос передан нашей проектной команде. Мы рассмотрим ваш бриф в течение 48 часов."
+
+msgid "Teie päringu saatmisel läks midagi valesti. Palun kirjutage otse aadressil marilyn@mooblipoisid.ee."
+msgstr "При отправке запроса что-то пошло не так. Пожалуйста, напишите напрямую на marilyn@mooblipoisid.ee."
+
+msgid "Täisnimi *"
+msgstr "Полное имя *"
+
+msgid "nt Astrid Lindgren"
+msgstr "напр. Астрид Линдгрен"
+
+msgid "Ettevõte / koht *"
+msgstr "Компания / заведение *"
+
+msgid "nt Kohvik Nordlys OÜ"
+msgstr "напр. Кофейня Nordlys OÜ"
+
+msgid "E-posti aadress *"
+msgstr "Электронная почта *"
+
+msgid "Telefoninumber"
+msgstr "Номер телефона"
+
+msgid "Projekti tüüp *"
+msgstr "Тип проекта *"
+
+msgid "Palun valige…"
+msgstr "Пожалуйста, выберите…"
+
+msgid "Kohvik, baar või restoran"
+msgstr "Кофейня, бар или ресторан"
+
+msgid "Jaemüügipood / kaubanduslik sisekujundus"
+msgstr "Магазин / торговый интерьер"
+
+msgid "Ainult letid või istekohad"
+msgstr "Только стойки или места для гостей"
+
+msgid "Mitme objekti lahendus"
+msgstr "Решение для нескольких объектов"
+
+msgid "Eraköök"
+msgstr "Частная кухня"
+
+msgid "Soovitud avamis- / paigaldusaeg"
+msgstr "Желаемое время открытия / монтажа"
+
+msgid "2027. aasta 1. kvartal"
+msgstr "1-й квартал 2027"
+
+msgid "2027. aasta 2. kvartal"
+msgstr "2-й квартал 2027"
+
+msgid "2027. aasta teine poolaasta"
+msgstr "Вторая половина 2027"
+
+msgid "Veel planeerimisel"
+msgstr "Ещё в планировании"
+
+msgid "Koha / poe asukoht"
+msgstr "Местоположение заведения / магазина"
+
+msgid "nt Tallinn, Stockholm, Helsinki, Riia"
+msgstr "напр. Таллин, Стокгольм, Хельсинки, Рига"
+
+msgid "Brief ja mõõdud"
+msgstr "Бриф и размеры"
+
+msgid "Rääkige meile, mida vajate: nt 6 m baar espresso-jaama ja letialuste külmikutega, 40 istekohta pingiistmetel, bränditud kassalauk. Lisage eelarvevahemik või arhitekti andmed, kui need on olemas."
+msgstr "Расскажите, что вам нужно: напр. бар 6 м с эспрессо-станцией и подстоечными холодильниками, 40 мест на банкетках, брендированная кассовая стойка. Укажите бюджет или данные архитектора, если они есть."
+
+msgid "Lisage plaanid, joonised või kontseptsioonitahvlid"
+msgstr "Приложите планы, чертежи или концепт-борды"
+
+msgid "PDF, DWG, PNG, JPEG kuni 25MB"
+msgstr "PDF, DWG, PNG, JPEG до 25 МБ"
+
+msgid "Saada projektipäring"
+msgstr "Отправить запрос на проект"
+
+# ---- Footer / misc ----
+msgid "Küsi pakkumist"
+msgstr "Запросить предложение"
+
+msgid "Vaata äriprojekte"
+msgstr "Смотреть коммерческие проекты"
+
+# ---- Footer widgets ----
+msgid "Erilahendusega mööbel ja puusepatööd kohvikutele, baaridele, restoranidele ja jaemüügile, lisaks eraköögid, valmistatud kestva põhjalikkusega."
+msgstr "Мебель и столярные изделия на заказ для кофеен, баров, ресторанов и ритейла, а также частные кухни, созданные с надёжной основательностью."
+
+msgid "Töökoda"
+msgstr "Мастерская"
+
+msgid "Avasta"
+msgstr "Исследуйте"
+
+msgid "Otsingud"
+msgstr "Запросы"
+
+msgid "Toitlustus"
+msgstr "Общепит"
+
+msgid "Jaemüük"
+msgstr "Ритейл"
+
+msgid "Projektid"
+msgstr "Проекты"
+
+msgid "Tellimise protsess"
+msgstr "Процесс заказа"
+
+msgid "Pressiportfell"
+msgstr "Портфолио прессы"
+
+msgid "Äripindade siseviimistluse, jaemüügikettide laiendamise ja arhitektide koostöö jaoks saatke oma brief otse meie projektide lauale."
+msgstr "Для отделки заведений, расширения ритейл-сетей и партнёрства с архитекторами отправьте ваш бриф прямо на наш проектный стол."
+
+msgid "Kõik õigused kaitstud."
+msgstr "Все права защищены."
+
+msgid "Komisjonitingimused"
+msgstr "Условия комиссии"
+
+msgid "Materjalide päritolu"
+msgstr "Происхождение материалов"
+
+msgid "Privaatsuspoliitika"
+msgstr "Политика конфиденциальности"
+
+# ---- Footer widget blocks (full HTML msgid) ----
+msgid "<div class=\"mp-footer-brand-block\"><div class=\"mp-footer-brand-top\"><div class=\"mp-footer-logo-row\"><img alt=\"Mööblipoisid Logo\" class=\"mp-footer-logo\" src=\"https://mooblipoisid.ddev.site/wp-content/uploads/2026/11/mp-2-1.jpg\"><span class=\"mp-footer-brand-name\">Mööblipoisid</span></div><p class=\"mp-footer-tagline\">Erilahendusega mööbel ja puusepatööd kohvikutele, baaridele, restoranidele ja jaemüügile, lisaks eraköögid, valmistatud kestva põhjalikkusega.</p></div></div>"
+msgstr "<div class=\"mp-footer-brand-block\"><div class=\"mp-footer-brand-top\"><div class=\"mp-footer-logo-row\"><img alt=\"Mööblipoisid Logo\" class=\"mp-footer-logo\" src=\"https://mooblipoisid.ddev.site/wp-content/uploads/2026/11/mp-2-1.jpg\"><span class=\"mp-footer-brand-name\">Mööblipoisid</span></div><p class=\"mp-footer-tagline\">Мебель и столярные изделия на заказ для кофеен, баров, ресторанов и ритейла, а также частные кухни, созданные с надёжной основательностью.</p></div></div>"
+
+msgid "<div class=\"mp-footer-col\"><span class=\"mp-footer-label\">Töökoda</span><div class=\"mp-footer-workshop\"><div><p class=\"mp-footer-strong\">Mööblipoisid OÜ</p><p class=\"mp-footer-sm\">Võidu 75, 11212 Tallinn, Eesti</p><p class=\"mp-footer-sm\">Reg. nr 12340882</p><p class=\"mp-footer-sm mp-footer-mt\">LHV: EE437700771003181572</p></div></div></div>"
+msgstr "<div class=\"mp-footer-col\"><span class=\"mp-footer-label\">Мастерская</span><div class=\"mp-footer-workshop\"><div><p class=\"mp-footer-strong\">Mööblipoisid OÜ</p><p class=\"mp-footer-sm\">Võidu 75, 11212 Таллин, Эстония</p><p class=\"mp-footer-sm\">Reg. nr 12340882</p><p class=\"mp-footer-sm mp-footer-mt\">LHV: EE437700771003181572</p></div></div></div>"
+
+msgid "<div class=\"mp-footer-col\"><span class=\"mp-footer-label\">Avasta</span><ul class=\"mp-footer-links\"><li><a href=\"/#hospitality\">Toitlustus</a></li><li><a href=\"/#retail\">Jaemüük</a></li><li><a href=\"/#projects\">Projektid</a></li><li><a href=\"/#process\">Tellimise protsess</a></li><li><a href=\"#\">Instagram</a></li><li><a href=\"#\">Pressiportfell</a></li></ul></div>"
+msgstr "<div class=\"mp-footer-col\"><span class=\"mp-footer-label\">Исследуйте</span><ul class=\"mp-footer-links\"><li><a href=\"/#hospitality\">Общепит</a></li><li><a href=\"/#retail\">Ритейл</a></li><li><a href=\"/#projects\">Проекты</a></li><li><a href=\"/#process\">Процесс заказа</a></li><li><a href=\"#\">Instagram</a></li><li><a href=\"#\">Портфолио прессы</a></li></ul></div>"
+
+msgid "<div class=\"mp-footer-col\"><span class=\"mp-footer-label\">Otsingud</span><p class=\"mp-footer-sm\">Äripindade siseviimistluse, jaemüügikettide laiendamise ja arhitektide koostöö jaoks saatke oma brief otse meie projektide lauale.</p><a class=\"mp-footer-cta\" href=\"/#consultation\"><span>Küsi pakkumist</span><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg></a></div>"
+msgstr "<div class=\"mp-footer-col\"><span class=\"mp-footer-label\">Запросы</span><p class=\"mp-footer-sm\">Для отделки заведений, расширения ритейл-сетей и партнёрства с архитекторами отправьте ваш бриф прямо на наш проектный стол.</p><a class=\"mp-footer-cta\" href=\"/#consultation\"><span>Запросить предложение</span><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg></a></div>"
+
+msgid "<div class=\"mp-footer-bottom\"><p>© {year} {site-title} OÜ. Kõik õigused kaitstud.</p><div class=\"mp-footer-legal-links\"><a href=\"#\">Komisjonitingimused</a><a href=\"#\">Materjalide päritolu</a><a href=\"#\">Privaatsuspoliitika</a></div></div>"
+msgstr "<div class=\"mp-footer-bottom\"><p>© {year} {site-title} OÜ. Все права защищены.</p><div class=\"mp-footer-legal-links\"><a href=\"#\">Условия комиссии</a><a href=\"#\">Происхождение материалов</a><a href=\"#\">Политика конфиденциальности</a></div></div>"
+

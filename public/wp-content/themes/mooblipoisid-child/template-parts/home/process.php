@@ -5,7 +5,9 @@
  * Every step is a `step` entry: the title is the step name, the short
  * description is the step text and the `mp_week` entry detail is the timeline
  * label. Entries render in menu_order ASC (the post date breaks ties), and the
- * step number is derived from the position (01, 02, 03, ...).
+ * step number is derived from the position (01, 02, 03, ...). The `lang` query
+ * var keeps the steps in the active language, and adds the site language as a
+ * fallback while a language has no steps of its own yet.
  *
  * @package mooblipoisid-child
  */
@@ -19,6 +21,7 @@ $mp_step_query = new WP_Query(
 		'posts_per_page'         => -1,
 		'orderby'                => 'menu_order',
 		'order'                  => 'ASC',
+		'lang'                   => mooblipoisid_section_languages( 'step' ),
 		'ignore_sticky_posts'    => true,
 		'no_found_rows'          => true,
 		'update_post_term_cache' => false,
@@ -37,11 +40,11 @@ $mp_step_index = 0;
   <div class="mp-container">
     <div class="mp-section-head">
       <div>
-        <span class="mp-eyebrow">The Process</span>
-        <h2 class="mp-headline-lg">From Brief to Opening Day</h2>
+        <span class="mp-eyebrow"><?php esc_html_e( 'Protsess', 'mooblipoisid-child' ); ?></span>
+        <h2 class="mp-headline-lg"><?php esc_html_e( 'Briefist avamispäevani', 'mooblipoisid-child' ); ?></h2>
       </div>
       <div class="mp-section-head__intro">
-        <p class="mp-body">We work to your fit-out programme, coordinate with your architect and contractors, and install around your opening date.</p>
+        <p class="mp-body"><?php esc_html_e( 'Töötame teie siseviimistluse graafiku järgi, koordineerime teie arhitekti ja töövõtjatega ning paigaldame teie avamiskuupäeva ümber.', 'mooblipoisid-child' ); ?></p>
       </div>
     </div>
     <div class="mp-process">

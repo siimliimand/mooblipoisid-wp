@@ -5,7 +5,8 @@
  * Every card is a `capability` entry: the title is the card name and the short
  * description is the card text. Entries render in menu_order ASC (the post date
  * breaks ties). The card icons are fixed artwork and do not come from the
- * entries.
+ * entries. The `lang` query var keeps the cards in the active language, and adds
+ * the site language as a fallback while a language has no cards of its own yet.
  *
  * @package mooblipoisid-child
  */
@@ -19,6 +20,7 @@ $mp_capability_query = new WP_Query(
 		'posts_per_page'         => -1,
 		'orderby'                => 'menu_order',
 		'order'                  => 'ASC',
+		'lang'                   => mooblipoisid_section_languages( 'capability' ),
 		'ignore_sticky_posts'    => true,
 		'no_found_rows'          => true,
 		'update_post_term_cache' => false,
@@ -45,11 +47,11 @@ $mp_capability_index = 0;
   <div class="mp-container">
     <div class="mp-section-head">
       <div>
-        <span class="mp-eyebrow">Capabilities</span>
-        <h2 class="mp-headline-lg">One Workshop. Every Material Your Venue Needs.</h2>
+        <span class="mp-eyebrow"><?php esc_html_e( 'Võimekused', 'mooblipoisid-child' ); ?></span>
+        <h2 class="mp-headline-lg"><?php esc_html_e( 'Üks töökoda. Iga materjal, mida teie koht vajab.', 'mooblipoisid-child' ); ?></h2>
       </div>
       <div class="mp-section-head__intro">
-        <p class="mp-body">A bar is rarely just timber. Because wood, metal and stone are all produced in-house, parts arrive finished, matching and ready to install, with no chasing between suppliers.</p>
+        <p class="mp-body"><?php esc_html_e( 'Baar ei ole harva ainult puit. Kuna puit, metall ja kiv valmistatakse kõik meie enda töökodades, saabuvad osad viimistletuna, omavahel sobivatena ja paigaldusvalmisena, ilma tarnijate vahel jooksmiseta.', 'mooblipoisid-child' ); ?></p>
       </div>
     </div>
     <div class="mp-caps">

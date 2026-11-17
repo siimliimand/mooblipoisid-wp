@@ -5,7 +5,9 @@
  * Every quote is a `testimonial` entry: the main text is the quote body, the
  * `mp_rating` entry detail (1–5) is the star row, `mp_role` is the person's
  * role and `mp_city` the city shown next to it. Entries render in menu_order
- * ASC (with the post date as the natural tie-break).
+ * ASC (with the post date as the natural tie-break). The `lang` query var keeps
+ * the quotes in the active language, and adds the site language as a fallback
+ * while a language has no quotes of its own yet.
  *
  * @package mooblipoisid-child
  */
@@ -19,6 +21,7 @@ $mp_story_query = new WP_Query(
 		'posts_per_page'         => -1,
 		'orderby'                => 'menu_order',
 		'order'                  => 'ASC',
+		'lang'                   => mooblipoisid_section_languages( 'testimonial' ),
 		'ignore_sticky_posts'    => true,
 		'no_found_rows'          => true,
 		'update_post_term_cache' => false,
@@ -35,8 +38,8 @@ if ( ! $mp_story_query->have_posts() ) {
   <div class="mp-container">
     <div class="mp-section-head">
       <div>
-        <span class="mp-eyebrow">Client Stories</span>
-        <h2 class="mp-headline-lg">What Our Clients Say</h2>
+        <span class="mp-eyebrow"><?php esc_html_e( 'Klientide lood', 'mooblipoisid-child' ); ?></span>
+        <h2 class="mp-headline-lg"><?php esc_html_e( 'Mida meie kliendid ütlevad', 'mooblipoisid-child' ); ?></h2>
       </div>
     </div>
     <div class="mp-testimonials">

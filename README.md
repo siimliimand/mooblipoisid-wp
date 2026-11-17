@@ -34,19 +34,19 @@ Mööblipoisid designs, builds and installs custom furniture. Wood, metal and st
 | CMS         | WordPress 7.1.4 (committed in `public/`)        |
 | Theme       | [Kadence](https://wordpress.org/themes/kadence/) 1.6.0 + `mooblipoisid-child` |
 | Content     | Structured & admin-editable (custom post types + taxonomies + Homepage Settings) |
-| Languages   | Estonian only for now (`et`); `ru`/`en` planned as a follow-up |
+| Languages   | Trilingual via Polylang — `et` (default), `ru`, `en` |
 | Local dev   | DDEV (primary) or Docker (`docker-compose.yml`) |
 | Production  | zone.ee (PHP hosting)                           |
 
 ### Languages
 
-The production site will be trilingual:
+The site is trilingual, served via subdirectory URLs (`/` = `et`, `/ru/`, `/en/`), powered by **Polylang** (free) + **Loco Translate** (for gettext strings):
 
-- **et** — Estonian, the default locale (installed)
-- **ru** — Russian (follow-up)
-- **en** — English (follow-up)
+- **et** — Estonian, the default locale (content complete)
+- **ru** — Russian (content complete)
+- **en** — English (content pending — currently falls back to Estonian)
 
-Translations will be managed with a multilingual plugin (Polylang planned). All page content, menus and product/service descriptions must exist in all three languages. The homepage content is already structured into translatable custom post types and taxonomies, so the translation plugin can operate on real posts and terms rather than opaque markup.
+Each custom post type, taxonomy and Homepage Settings field is per-language, so editors manage a real translation for each language. Template headings, the enquiry form and the footer are gettext strings (source = Estonian) with Russian translations in the child theme's `languages/` folder; untranslated content falls back to the Estonian original so no section ever disappears while a language is being translated. The language switcher (header + footer) and `hreflang` alternates are handled by Polylang.
 
 ## Local Development
 
@@ -86,7 +86,8 @@ Production is hosted at [zone.ee](https://www.zone.ee/) on shared PHP hosting.
 
 - Upload/deploy WordPress files over SFTP/SSH (`public/` contents → site docroot)
 - Import the database and update `wp-config.php` with zone.ee DB credentials
-- Set the site language to Estonian; install the multilingual plugin and add `ru` and `en`
+- The site is trilingual via Polylang (`et` default, `/ru/`, `/en/`); keep the `wp-content/plugins/polylang/` and the child theme `languages/` folder intact on deploy
+- Add the `wp-config.php` warning-suppression lines (from the local file) to production too
 - Zone serves sites over HTTPS by default (Let's Encrypt) — make sure site URL uses `https://`
 
 ## Repository Layout
@@ -98,14 +99,21 @@ Production is hosted at [zone.ee](https://www.zone.ee/) on shared PHP hosting.
 ├── .ddev/                          # DDEV project config (WordPress, PHP 8.3)
 ├── bin/                            # helper scripts (one-time content import)
 ├── public/                         # WordPress docroot (committed)
-│   └── wp-content/themes/
-│       ├── kadence/                # parent theme (do not edit)
-│       └── mooblipoisid-child/     # all project code
-│           ├── front-page.php      # renders the homepage from the content model
-│           ├── template-parts/home/  # one template part per homepage section
-│           ├── inc/content-model.php # CPT/taxonomy/Homepage Settings registration
-│           ├── functions.php       # enquiry form + shortcodes
-│           └── style.css           # design tokens + section styles
+│   └── wp-content/
+│       ├── plugins/
+│       │   ├── kadence-blocks/     # Kadence Blocks plugin
+│       │   └── polylang/           # Polylang (multilingual: et/ru/en)
+│       └── themes/
+│           ├── kadence/            # parent theme (do not edit)
+│           └── mooblipoisid-child/ # all project code
+│               ├── front-page.php      # renders the homepage from the content model
+│               ├── template-parts/home/  # one template part per homepage section
+│               ├── inc/
+│               │   ├── content-model.php # CPT/taxonomy/Homepage Settings registration
+│               │   └── polylang-front-page-urls.php # language front-page URL handling
+│               ├── languages/       # gettext translations (mooblipoisid-child-*.po/.mo)
+│               ├── functions.php    # enquiry form + textdomain + translation filters
+│               └── style.css        # design tokens + section styles
 ├── docs/
 │   ├── html/                       # design prototype / static reference (not part of WP)
 │   ├── EDITOR-GUIDE.md             # how to edit homepage content in wp-admin
@@ -125,7 +133,7 @@ The homepage is rendered dynamically by `front-page.php`, which pulls content fr
 
 Each homepage section is a template part in `template-parts/home/` that queries the matching content and emits the design's markup. `docs/homepage-content.html` is kept only as a reference snapshot of the original static version.
 
-All post types and taxonomies are registered `public`, so a multilingual plugin (e.g. Polylang) will recognise them for translation. The enquiry form is the `[mooblipoisid_enquiry_form]` shortcode (rendered inside the `#consultation` section); submissions email both managers (verify deliverability with SMTP before launch).
+All post types and taxonomies are registered `public` and are marked translatable in Polylang, so every entry, term and Homepage Settings field has a per-language translation. Template headings, the enquiry form and the footer are gettext strings translated per language via the child theme's `languages/` folder. The enquiry form is the `[mooblipoisid_enquiry_form]` shortcode (rendered inside the `#consultation` section); submissions email both managers (verify deliverability with SMTP before launch).
 
 ## Contacts
 

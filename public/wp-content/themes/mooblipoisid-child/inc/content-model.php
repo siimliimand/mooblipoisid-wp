@@ -7,7 +7,17 @@
  *  - Content entries (custom post types)   -> project, testimonial, range, capability, step, trust_stat
  *  - Grouping terms (taxonomies)           -> sector, project_tag   (on Projects)
  *  - Extra entry details (post meta)       -> mp_location_type, mp_role, mp_city, mp_rating, mp_week
- *  - One-off homepage text (single option) -> mp_homepage_settings
+ *  - One-off homepage text (single option) -> mp_homepage_settings (stored per language)
+ *
+ * Multilingual (Polylang):
+ *  - The six content types and the two taxonomies are declared translatable by the
+ *    theme (`mooblipoisid_polylang_translatable_content()`), so the settings are
+ *    enforced in code: the content model stays complete on every deploy, and the
+ *    entries are filtered by the active language automatically.
+ *  - `mp_homepage_settings` holds one set of fields per language
+ *    ( `array( 'et' => array( … ), 'ru' => array( … ), 'en' => array( … ) )` ) and
+ *    `mooblipoisid_get_homepage_settings()` resolves the active language, falling
+ *    back to Estonian for any field a language does not have yet.
  *
  * All content types are registered `public => true` + `show_ui => true` so that a
  * later multilingual plugin (Polylang) recognises them as translatable, while
@@ -136,6 +146,103 @@ function mooblipoisid_register_content_post_types() {
 	}
 }
 add_action( 'init', 'mooblipoisid_register_content_post_types' );
+
+/* ==========================================================================
+ * 1b. Multilingual content model (Polylang)
+ * ========================================================================== */
+
+/**
+ * The content model entries that have per-language versions.
+ *
+ * @return array {
+ *     @type string[] $post_types Content types with a translation per language.
+ *     @type string[] $taxonomies Grouping terms with a translation per language.
+ * }
+ */
+function mooblipoisid_translatable_content() {
+	return array(
+		'post_types' => array( 'project', 'testimonial', 'range', 'capability', 'step', 'trust_stat' ),
+		'taxonomies' => array( 'sector', 'project_tag' ),
+	);
+}
+
+/**
+ * Tell Polylang which content model entries are translatable.
+ *
+ * Polylang is configurable in its settings screen, but the theme declares the
+ * content model here as well so the configuration travels with the code: the
+ * homepage content model is complete on every environment, and the language
+ * filter on queries can never be switched off by accident. The screen shows
+ * these ticked and disabled.
+ *
+ * Must be hooked early (before `after_setup_theme`), the same as Polylang's own
+ * documentation requires.
+ *
+ * @param string[] $post_types Post types offered for translation.
+ * @param bool     $is_settings Whether the list is being shown in Polylang's settings.
+ * @return string[] Post types to translate.
+ */
+function mooblipoisid_polylang_translatable_post_types( $post_types, $is_settings = false ) {
+	if ( $is_settings ) {
+		// The settings screen lists what is offered, not what is enforced.
+		return $post_types;
+	}
+
+	$types = (array) $post_types;
+	foreach ( mooblipoisid_translatable_content()['post_types'] as $post_type ) {
+		$types[ $post_type ] = $post_type;
+	}
+
+	return $types;
+}
+add_filter( 'pll_get_post_types', 'mooblipoisid_polylang_translatable_post_types', 10, 2 );
+
+/**
+ * Tell Polylang which grouping terms are translatable.
+ *
+ * @param string[] $taxonomies Taxonomies offered for translation.
+ * @param bool     $is_settings Whether the list is being shown in Polylang's settings.
+ * @return string[] Taxonomies to translate.
+ */
+function mooblipoisid_polylang_translatable_taxonomies( $taxonomies, $is_settings = false ) {
+	if ( $is_settings ) {
+		// The settings screen lists what is offered, not what is enforced.
+		return $taxonomies;
+	}
+
+	$taxes = (array) $taxonomies;
+	foreach ( mooblipoisid_translatable_content()['taxonomies'] as $taxonomy ) {
+		$taxes[ $taxonomy ] = $taxonomy;
+	}
+
+	return $taxes;
+}
+add_filter( 'pll_get_taxonomies', 'mooblipoisid_polylang_translatable_taxonomies', 10, 2 );
+
+/**
+ * Mirror those settings into the `polylang` option so both agree.
+ *
+ * The option is what `PLL()->model->get_translated_post_types()` and
+ * `get_translated_taxonomies()` resolve first, and what the Polylang settings
+ * screen submits. Every other key of the option is left untouched.
+ */
+function mooblipoisid_polylang_sync_translatable_content() {
+	$content = mooblipoisid_translatable_content();
+	$option  = get_option( 'polylang', array() );
+	$option  = is_array( $option ) ? $option : array();
+	$before  = $option;
+
+	foreach ( array( 'post_types', 'taxonomies' ) as $key ) {
+		$stored         = isset( $option[ $key ] ) ? (array) $option[ $key ] : array();
+		$option[ $key ] = array_values( array_unique( array_merge( $stored, $content[ $key ] ) ) );
+		sort( $option[ $key ] );
+	}
+
+	if ( $option !== $before ) {
+		update_option( 'polylang', $option );
+	}
+}
+add_action( 'admin_init', 'mooblipoisid_polylang_sync_translatable_content', 5 );
 
 /**
  * Plain-language names for the standard editor panels, per content type.
@@ -644,13 +751,430 @@ function mooblipoisid_homepage_settings_defaults() {
 /**
  * Read the Homepage Settings, merged over the defaults.
  *
+ * The option holds one field set per language:
+ *
+ *     array( 'et' => array( 'hero_headline' => …, … ), 'ru' => …, 'en' => … )
+ *
+ * and older installs stored the Estonian fields flat in the same option. A flat
+ * option is detected and re-keyed under `et` once, on read or on save, so no
+ * Estonian content is ever lost (see `mooblipoisid_migrate_homepage_settings()`).
+ *
+ * The fields of the active language are returned, with the Estonian value used
+ * for any field a language does not have yet. When Polylang is not available the
+ * Estonian (or the only stored) set is returned. The return shape — one flat
+ * array of field keys — is unchanged, so the template parts need no changes.
+ *
  * @return array
  */
 function mooblipoisid_get_homepage_settings() {
-	$saved = get_option( mooblipoisid_homepage_option_name(), array() );
-	$saved = is_array( $saved ) ? $saved : array();
+	$stored = get_option( mooblipoisid_homepage_option_name(), array() );
+	$stored = is_array( $stored ) ? $stored : array();
+	$migrated = mooblipoisid_migrate_homepage_settings( $stored );
 
-	return wp_parse_args( $saved, mooblipoisid_homepage_settings_defaults() );
+	// One-time, idempotent migration of an option saved before localisation.
+	mooblipoisid_persist_homepage_settings_migration( $migrated, $stored );
+	$stored = $migrated;
+
+	$language = mooblipoisid_current_language_code();
+	$default  = mooblipoisid_default_language_code();
+
+	$values = isset( $stored[ $language ] ) && is_array( $stored[ $language ] ) ? $stored[ $language ] : array();
+	$fallback = isset( $stored[ $default ] ) && is_array( $stored[ $default ] ) ? $stored[ $default ] : array();
+
+	$values = wp_parse_args( $values, $fallback );
+
+	return wp_parse_args( $values, mooblipoisid_homepage_settings_defaults() );
+}
+
+/**
+ * The language code the homepage is being rendered for.
+ *
+ * @return string Language slug (`et`, `ru`, `en`), `et` when Polylang is not available.
+ */
+function mooblipoisid_current_language_code() {
+	if ( function_exists( 'pll_current_language' ) ) {
+		$slug = pll_current_language( 'slug' );
+		if ( is_string( $slug ) && '' !== $slug ) {
+			return $slug;
+		}
+	}
+
+	return mooblipoisid_default_language_code();
+}
+
+/**
+ * The default (source) language code: Estonian unless Polylang says otherwise.
+ *
+ * @return string Language slug.
+ */
+function mooblipoisid_default_language_code() {
+	if ( function_exists( 'pll_default_language' ) ) {
+		$slug = pll_default_language( 'slug' );
+		if ( is_string( $slug ) && '' !== $slug ) {
+			return $slug;
+		}
+	}
+
+	return 'et';
+}
+
+/**
+ * Whether an option value is the current per-language shape.
+ *
+ * @param mixed $value Option value.
+ * @return bool True when the value is keyed by language code.
+ */
+function mooblipoisid_homepage_settings_is_localised( $value ) {
+	if ( ! is_array( $value ) || empty( $value ) ) {
+		return true; // Nothing to migrate: an empty option already has the right shape.
+	}
+
+	foreach ( array_keys( mooblipoisid_homepage_settings_fields() ) as $field_id ) {
+		if ( array_key_exists( $field_id, $value ) ) {
+			return false; // A field key at the top level: the old, flat shape.
+		}
+	}
+
+	return true;
+}
+
+/**
+ * Re-key a flat (pre-multilingual) option under its language.
+ *
+ * Idempotent: a per-language option is returned untouched, and a flat option
+ * keeps every key it carries (editor-added keys included) but moves under the
+ * default language. Callers that persist the result must only write when it
+ * differs from what they read — see the read and save paths below.
+ *
+ * @param array $stored Raw option value.
+ * @return array Language-keyed value.
+ */
+function mooblipoisid_migrate_homepage_settings( $stored ) {
+	if ( mooblipoisid_homepage_settings_is_localised( $stored ) ) {
+		return $stored;
+	}
+
+	return array( mooblipoisid_default_language_code() => $stored );
+}
+
+/**
+ * Persist a flat option as the per-language shape (one-time migration).
+ *
+ * @param array $migrated Value returned by `mooblipoisid_migrate_homepage_settings()`.
+ * @param array $raw      Value as it is stored right now.
+ * @return void
+ */
+function mooblipoisid_persist_homepage_settings_migration( $migrated, $raw ) {
+	if ( $migrated !== $raw ) {
+		update_option( mooblipoisid_homepage_option_name(), $migrated );
+	}
+}
+
+/* ==========================================================================
+ * 3b. Graceful fallback for untranslated content
+ * ========================================================================== */
+
+/**
+ * The content model fallbacks, in the order the homepage renders them.
+ *
+ * A section whose entries have not been translated yet falls back to the
+ * Estonian entries instead of disappearing, so the page keeps its shape in
+ * every language while the translation of the content model (task 5.x) fills
+ * the gaps. Turning a key off here (or filtering the list) makes that section
+ * strict again: only the active language's entries render.
+ *
+ * @return array Section id => content type (or `sector` for the terms).
+ */
+function mooblipoisid_homepage_section_content_types() {
+	return array(
+		'trust'        => 'trust_stat',
+		'sectors'      => 'sector',
+		'ranges'       => 'range',
+		'projects'     => 'project',
+		'capabilities' => 'capability',
+		'process'      => 'step',
+		'stories'      => 'testimonial',
+	);
+}
+
+/**
+ * The default-language fallbacks enabled for the homepage sections.
+ *
+ * @return array Section id => content type.
+ */
+function mooblipoisid_homepage_content_fallbacks() {
+	/**
+	 * Filter which homepage sections fall back to the Estonian entries when the
+	 * active language has none of its own yet.
+	 *
+	 * @param array $fallbacks Section id => content type.
+	 */
+	return (array) apply_filters( 'mooblipoisid_homepage_content_fallbacks', mooblipoisid_homepage_section_content_types() );
+}
+
+
+/**
+ * Languages a section's query fetches: the active one, plus the default one to
+ * fall back on when the active language has no entries of its own yet.
+ *
+ * The fallback is per-entry: the query asks for the active language and the
+ * default one together, so each entry renders in its own translation when it
+ * has one and in Estonian when it does not. A fully translated section shows
+ * only its own language; a partially translated one shows its translations
+ * plus the Estonian originals for the rest, so no entry ever disappears while
+ * a language is being translated.
+ *
+ * @param string          $post_type Content type of the section (or `sector`).
+ * @param string|string[] $lang      Language slug(s) the query is asking for.
+ * @return string|string[] Languages to ask for.
+ */
+function mooblipoisid_section_languages( $post_type, $lang = null ) {
+	$language = null === $lang ? mooblipoisid_current_language_code() : $lang;
+	$default  = mooblipoisid_default_language_code();
+
+	if ( ! mooblipoisid_section_has_fallback( (string) $post_type ) ) {
+		return $language;
+	}
+
+	if ( '' === $language || $language === $default ) {
+		return $language;
+	}
+
+	// Ask for the active language and the default together. Polylang returns the
+	// active-language entries plus every default-language entry that has no
+	// translation yet, which is exactly the per-entry fallback we want.
+	return array( $language, $default );
+}
+
+/**
+ * Whether the default-language entries have at least one translation missing.
+ *
+ * Used by the section query to decide whether to include the default language
+ * alongside the active one. When a content type has default-language entries
+ * without a translation in the active language, those originals must render as
+ * the fallback so the section is never short of entries mid-translation.
+ *
+ * @param string $post_type Content type (or `sector`).
+ * @param string $language  Active language slug.
+ * @return bool True when at least one default-language entry lacks a translation.
+ */
+function mooblipoisid_section_needs_default_fallback( $post_type, $language ) {
+	$default = mooblipoisid_default_language_code();
+
+	if ( '' === $language || $language === $default ) {
+		return false;
+	}
+
+	if ( 'sector' === $post_type ) {
+		$default_terms = get_terms(
+			array(
+				'taxonomy'               => $post_type,
+				'hide_empty'             => false,
+				'lang'                   => $default,
+				'fields'                 => 'ids',
+				'update_term_meta_cache' => false,
+			)
+		);
+
+		if ( is_wp_error( $default_terms ) || empty( $default_terms ) ) {
+			return false;
+		}
+
+		foreach ( $default_terms as $term_id ) {
+			if ( ! function_exists( 'pll_get_term' ) || ! pll_get_term( (int) $term_id, $language ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	$default_ids = get_posts(
+		array(
+			'post_type'              => $post_type,
+			'post_status'            => 'publish',
+			'posts_per_page'         => -1,
+			'orderby'                => 'menu_order',
+			'order'                  => 'ASC',
+			'lang'                   => $default,
+			'fields'                 => 'ids',
+			'ignore_sticky_posts'    => true,
+			'no_found_rows'          => true,
+			'update_post_term_cache' => false,
+			'update_post_meta_cache' => false,
+		)
+	);
+
+	if ( empty( $default_ids ) ) {
+		return false;
+	}
+
+	foreach ( $default_ids as $post_id ) {
+		if ( ! function_exists( 'pll_get_post' ) || ! pll_get_post( (int) $post_id, $language ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Drop default-language originals whose translation is present in the query.
+ *
+ * When a section query asks for the active language and the default together
+ * (the per-entry fallback), Polylang returns both a translated entry and its
+ * Estonian original. The original is redundant once its translation exists, so
+ * it is removed here; untranslated originals stay as the fallback. Ordering is
+ * preserved because the remaining entries keep their query order.
+ *
+ * @param WP_Post[] $posts Posts fetched by the query.
+ * @param WP_Query  $query The query.
+ * @return WP_Post[] Filtered posts.
+ */
+function mooblipoisid_drop_translated_originals( $posts, $query ) {
+	if ( ! is_array( $posts ) || empty( $posts ) || ! function_exists( 'pll_get_post' ) ) {
+		return $posts;
+	}
+
+	$query_lang = $query->get( 'lang' );
+	if ( ! is_array( $query_lang ) || count( $query_lang ) < 2 ) {
+		return $posts;
+	}
+
+	$default = mooblipoisid_default_language_code();
+
+	// The active language is the requested non-default one. Reading it from the
+	// query (not the global current language) keeps the filter correct however
+	// the query is issued.
+	$language = '';
+	foreach ( $query_lang as $slug ) {
+		if ( $slug !== $default ) {
+			$language = (string) $slug;
+			break;
+		}
+	}
+
+	if ( '' === $language ) {
+		return $posts;
+	}
+
+	$kept = array();
+	foreach ( $posts as $post ) {
+		$post_lang = function_exists( 'pll_get_post_language' ) ? pll_get_post_language( $post->ID, 'slug' ) : $default;
+
+		// Keep every active-language entry; keep a default-language entry only
+		// when it has no translation in the active language (the fallback).
+		if ( $post_lang !== $default ) {
+			$kept[] = $post;
+			continue;
+		}
+
+		if ( ! pll_get_post( (int) $post->ID, $language ) ) {
+			$kept[] = $post;
+		}
+	}
+
+	return $kept;
+}
+add_filter( 'the_posts', 'mooblipoisid_drop_translated_originals', 10, 2 );
+
+/**
+ * Whether a content type has entries in a language.
+ *
+ * Runs the section's own query shape (same ordering, ids only) so the decision
+ * and the rendering can never disagree.
+ *
+ * @param string $post_type Content type (or `sector`).
+ * @param string $language  Language slug.
+ * @return bool
+ */
+function mooblipoisid_section_has_posts( $post_type, $language ) {
+	if ( 'sector' === $post_type ) {
+		$terms = get_terms(
+			array(
+				'taxonomy'               => $post_type,
+				'hide_empty'             => false,
+				'lang'                   => $language,
+				'fields'                 => 'ids',
+				'update_term_meta_cache' => false,
+			)
+		);
+
+		return ! is_wp_error( $terms ) && ! empty( $terms );
+	}
+
+	$query = new WP_Query(
+		array(
+			'post_type'              => $post_type,
+			'post_status'            => 'publish',
+			'posts_per_page'         => 1,
+			'orderby'                => 'menu_order',
+			'order'                  => 'ASC',
+			'lang'                   => $language,
+			'fields'                 => 'ids',
+			'ignore_sticky_posts'    => true,
+			'no_found_rows'          => true,
+			'update_post_term_cache' => false,
+			'update_post_meta_cache' => false,
+		)
+	);
+
+	$found = $query->have_posts();
+	wp_reset_postdata();
+
+	return $found;
+}
+
+/**
+ * Whether a section falls back to the default language when it is empty.
+ *
+ * @param string $post_type Content type of the section.
+ * @return bool
+ */
+function mooblipoisid_section_has_fallback( $post_type ) {
+	return in_array( $post_type, mooblipoisid_homepage_content_fallbacks(), true );
+}
+
+/**
+ * Drop default-language term originals whose translation is present in the list.
+ *
+ * Mirrors mooblipoisid_drop_translated_originals() for taxonomy terms: when a
+ * term query asks for the active language and the default together, Polylang
+ * returns both a translated term and its Estonian original. The original is
+ * redundant once its translation exists, so it is removed; untranslated
+ * originals stay as the fallback.
+ *
+ * @param WP_Term[] $terms   Terms fetched by the query.
+ * @param string    $language Active language slug.
+ * @return WP_Term[] Filtered terms.
+ */
+function mooblipoisid_drop_translated_original_terms( $terms, $language = null ) {
+	if ( ! is_array( $terms ) || empty( $terms ) || ! function_exists( 'pll_get_term' ) ) {
+		return $terms;
+	}
+
+	$default  = mooblipoisid_default_language_code();
+	$language = null === $language ? mooblipoisid_current_language_code() : $language;
+
+	if ( '' === $language || $language === $default ) {
+		return $terms;
+	}
+
+	$kept = array();
+	foreach ( $terms as $term ) {
+		$term_lang = function_exists( 'pll_get_term_language' ) ? pll_get_term_language( $term->term_id, 'slug' ) : $default;
+
+		if ( $term_lang !== $default ) {
+			$kept[] = $term;
+			continue;
+		}
+
+		if ( ! pll_get_term( (int) $term->term_id, $language ) ) {
+			$kept[] = $term;
+		}
+	}
+
+	return $kept;
 }
 
 /**
@@ -777,13 +1301,25 @@ function mooblipoisid_homepage_settings_sections() {
 function mooblipoisid_register_homepage_settings() {
 	$option = mooblipoisid_homepage_option_name();
 
+	/*
+	 * The screen edits one language at a time (see the language buttons in
+	 * mooblipoisid_render_homepage_settings_page()), and every field is rendered
+	 * for that language, so the language has to be known while the fields are
+	 * registered too.
+	 */
+	$language = isset( $_GET['mp_lang'] ) ? sanitize_key( wp_unslash( $_GET['mp_lang'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$languages = function_exists( 'pll_languages_list' ) ? (array) pll_languages_list( array( 'fields' => 'slug' ) ) : array();
+	if ( ! in_array( $language, $languages, true ) ) {
+		$language = mooblipoisid_default_language_code();
+	}
+
 	register_setting(
 		'mooblipoisid_homepage_settings_group',
 		$option,
 		array(
 			'type'              => 'array',
 			'sanitize_callback' => 'mooblipoisid_sanitize_homepage_settings',
-			'default'           => mooblipoisid_homepage_settings_defaults(),
+			'default'           => array( mooblipoisid_default_language_code() => mooblipoisid_homepage_settings_defaults() ),
 		)
 	);
 
@@ -810,6 +1346,7 @@ function mooblipoisid_register_homepage_settings() {
 				'field_id'    => $field_id,
 				'field'       => $field,
 				'option_name' => $option,
+				'language'    => $language,
 			)
 		);
 	}
@@ -831,7 +1368,7 @@ function mooblipoisid_add_homepage_settings_page() {
 add_action( 'admin_menu', 'mooblipoisid_add_homepage_settings_page' );
 
 /**
- * Render one Homepage Settings field.
+ * Render one Homepage Settings field for the language being edited.
  *
  * @param array $args Field arguments passed from add_settings_field().
  */
@@ -839,18 +1376,29 @@ function mooblipoisid_render_homepage_setting_field( $args ) {
 	$field_id    = $args['field_id'];
 	$field       = $args['field'];
 	$option_name = $args['option_name'];
+	$language    = isset( $args['language'] ) ? (string) $args['language'] : mooblipoisid_current_language_code();
 
 	$options = get_option( $option_name, array() );
 	$options = is_array( $options ) ? $options : array();
-	$value   = isset( $options[ $field_id ] ) ? $options[ $field_id ] : '';
-	$value   = is_scalar( $value ) ? (string) $value : '';
+	$options = mooblipoisid_migrate_homepage_settings( $options );
 
+	$values = isset( $options[ $language ] ) && is_array( $options[ $language ] ) ? $options[ $language ] : array();
+	$value  = isset( $values[ $field_id ] ) ? $values[ $field_id ] : '';
+	$value  = is_scalar( $value ) ? (string) $value : '';
+
+	/*
+	 * Only the fields of the language being edited are submitted, so a language
+	 * that has not been edited yet starts from the Estonian value (rather than
+	 * from the English defaults) and the editor sees the copy to translate.
+	 */
 	if ( '' === $value ) {
-		$defaults = mooblipoisid_homepage_settings_defaults();
-		$value    = isset( $defaults[ $field_id ] ) ? $defaults[ $field_id ] : '';
+		$default_language = mooblipoisid_default_language_code();
+		$defaults         = isset( $options[ $default_language ] ) && is_array( $options[ $default_language ] ) ? $options[ $default_language ] : array();
+		$defaults         = wp_parse_args( $defaults, mooblipoisid_homepage_settings_defaults() );
+		$value            = isset( $defaults[ $field_id ] ) ? (string) $defaults[ $field_id ] : '';
 	}
 
-	$name = $option_name . '[' . $field_id . ']';
+	$name = $option_name . '[' . $language . '][' . $field_id . ']';
 
 	if ( 'textarea' === $field['type'] ) {
 		printf(
@@ -874,11 +1422,59 @@ function mooblipoisid_render_homepage_setting_field( $args ) {
 }
 
 /**
+ * Language picker and explanation for the Homepage Settings screen.
+ *
+ * Plain buttons rather than the technical Polylang editor language: each one
+ * shows the fields in that language, and saving keeps the other languages as
+ * they are.
+ *
+ * @param string   $current  Language code being edited.
+ * @param string[] $language Language codes, in menu order.
+ * @return void
+ */
+function mooblipoisid_render_homepage_settings_language_picker( $current, $languages ) {
+	$names = array(
+		'et' => __( 'Eesti', 'mooblipoisid-child' ),
+		'ru' => __( 'Русский', 'mooblipoisid-child' ),
+		'en' => __( 'English', 'mooblipoisid-child' ),
+	);
+	?>
+	<div class="mooblipoisid-homepage-settings-lang" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0 8px;">
+		<strong style="margin-right:4px;"><?php esc_html_e( 'Language', 'mooblipoisid-child' ); ?>:</strong>
+		<?php foreach ( (array) $languages as $language ) : ?>
+			<?php
+			$is_current = $language === $current;
+			$url        = add_query_arg(
+				array(
+					'page'    => 'mooblipoisid_homepage_settings',
+					'mp_lang' => $language,
+				),
+				admin_url( 'options-general.php' )
+			);
+			?>
+			<a class="button <?php echo $is_current ? 'button-primary' : ''; ?>" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( isset( $names[ $language ] ) ? $names[ $language ] : strtoupper( $language ) ); ?></a>
+		<?php endforeach; ?>
+		<span class="description" style="margin-left:8px;"><?php esc_html_e( 'Edit the text in one language at a time. Saving never touches the other languages, and a language that has no text of its own shows the Estonian text on the site.', 'mooblipoisid-child' ); ?></span>
+	</div>
+	<?php
+}
+
+/**
  * Render the Homepage Settings screen.
  */
 function mooblipoisid_render_homepage_settings_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
+	}
+
+	$languages = function_exists( 'pll_languages_list' ) ? (array) pll_languages_list( array( 'fields' => 'slug' ) ) : array();
+	if ( empty( $languages ) ) {
+		$languages = array( mooblipoisid_default_language_code() );
+	}
+
+	$current = isset( $_GET['mp_lang'] ) ? sanitize_key( wp_unslash( $_GET['mp_lang'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( ! in_array( $current, $languages, true ) ) {
+		$current = mooblipoisid_default_language_code();
 	}
 	?>
 	<div class="wrap">
@@ -886,9 +1482,11 @@ function mooblipoisid_render_homepage_settings_page() {
 		<p class="description">
 			<?php esc_html_e( 'The one-off text shown on the homepage. Change anything here and the homepage updates straight away — no code needed.', 'mooblipoisid-child' ); ?>
 		</p>
+		<?php mooblipoisid_render_homepage_settings_language_picker( $current, $languages ); ?>
 		<form action="options.php" method="post">
 			<?php
 			settings_fields( 'mooblipoisid_homepage_settings_group' );
+			printf( '<input type="hidden" name="mp_settings_language" value="%s" />', esc_attr( $current ) );
 			do_settings_sections( 'mooblipoisid_homepage_settings' );
 			submit_button( __( 'Save Homepage Settings', 'mooblipoisid-child' ) );
 			?>
@@ -900,25 +1498,38 @@ function mooblipoisid_render_homepage_settings_page() {
 /**
  * Sanitize the Homepage Settings before they are stored.
  *
- * @param array $input Raw input.
- * @return array Clean values.
+ * Only the language being edited is submitted, so the other languages keep
+ * their values. An old flat option is migrated to the per-language shape on the
+ * first save (idempotent: the option only ever holds language keys afterwards).
+ *
+ * @param array $input Raw input: the fields of one language.
+ * @return array Complete per-language value to store.
  */
 function mooblipoisid_sanitize_homepage_settings( $input ) {
-	$fields  = mooblipoisid_homepage_settings_fields();
-	$clean   = array();
-	$stored  = get_option( mooblipoisid_homepage_option_name(), array() );
-	$stored  = is_array( $stored ) ? $stored : array();
+	$fields = mooblipoisid_homepage_settings_fields();
+
+	$language = isset( $_POST['mp_settings_language'] ) ? sanitize_key( wp_unslash( $_POST['mp_settings_language'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified by options.php + nonce in settings_fields()
+	$languages = function_exists( 'pll_languages_list' ) ? (array) pll_languages_list( array( 'fields' => 'slug' ) ) : array();
+	if ( ! in_array( $language, $languages, true ) ) {
+		$language = mooblipoisid_default_language_code();
+	}
+
+	$input = is_array( $input ) ? $input : array();
+
+	$stored = get_option( mooblipoisid_homepage_option_name(), array() );
+	$stored = is_array( $stored ) ? $stored : array();
+	$stored = mooblipoisid_migrate_homepage_settings( $stored );
+
+	$values = isset( $stored[ $language ] ) && is_array( $stored[ $language ] ) ? $stored[ $language ] : array();
+	$clean  = array();
 
 	foreach ( $fields as $field_id => $field ) {
 		$value = isset( $input[ $field_id ] ) ? $input[ $field_id ] : null;
 
 		if ( null === $value ) {
-			// Field not submitted: keep whatever is stored, or the default.
-			if ( isset( $stored[ $field_id ] ) && '' !== $stored[ $field_id ] ) {
-				$clean[ $field_id ] = $stored[ $field_id ];
-			} else {
-				$defaults           = mooblipoisid_homepage_settings_defaults();
-				$clean[ $field_id ] = isset( $defaults[ $field_id ] ) ? $defaults[ $field_id ] : '';
+			// Field not submitted: keep whatever this language already has.
+			if ( isset( $values[ $field_id ] ) && '' !== $values[ $field_id ] ) {
+				$clean[ $field_id ] = $values[ $field_id ];
 			}
 			continue;
 		}
@@ -940,5 +1551,7 @@ function mooblipoisid_sanitize_homepage_settings( $input ) {
 		$clean[ $field_id ] = $value;
 	}
 
-	return $clean;
+	$stored[ $language ] = $clean;
+
+	return $stored;
 }

@@ -20,11 +20,11 @@ $mp_ethos_quote = isset( $mp_settings['ethos_quote'] ) ? (string) $mp_settings['
     <div>
       <div>
         <div>
-          <img src="https://mooblipoisid.ddev.site/wp-content/uploads/2026/11/mp-3.jpg" alt="Craftsmanship at the Mööblipoisid workshop (placeholder, awaiting real photography)">
+          <img src="https://mooblipoisid.ddev.site/wp-content/uploads/2026/11/mp-3.jpg" alt="<?php esc_attr_e( 'Meistrikoda Mööblipoisid töökojas (näidisfoto, ootab pärisfotograafiat)', 'mooblipoisid-child' ); ?>">
         </div>
         <div class="mp-ethos__badge">
-          <p>In-House Production</p>
-          <p>Wood, metal &amp; stone under one roof in Tallinn</p>
+          <p><?php esc_html_e( 'Oma tootmine', 'mooblipoisid-child' ); ?></p>
+          <p><?php esc_html_e( 'Puit, metall ja kiv ühe katuse all Tallinnas', 'mooblipoisid-child' ); ?></p>
         </div>
       </div>
       <div>
@@ -35,12 +35,12 @@ $mp_ethos_quote = isset( $mp_settings['ethos_quote'] ) ? (string) $mp_settings['
         <p class="mp-body"><?php echo esc_html( isset( $mp_settings['ethos_body'] ) ? (string) $mp_settings['ethos_body'] : '' ); ?></p>
         <div class="mp-ethos__points">
           <div>
-            <h4>Built to Take the Wear</h4>
-            <p>Heat- and scratch-resistant tops, reinforced joints and commercial-grade hardware for all-day, every-day use.</p>
+            <h4><?php esc_html_e( 'Valmis kandmiseks', 'mooblipoisid-child' ); ?></h4>
+            <p><?php esc_html_e( 'Kuumus- ja kriipimiskindlad pealsed, tugevdatud liited ja äriklassi furnituur igapäevaseks kasutamiseks.', 'mooblipoisid-child' ); ?></p>
           </div>
           <div>
-            <h4>One Team, Start to Finish</h4>
-            <p>The people who design your pieces also build and install them, so one contact is accountable for the whole project.</p>
+            <h4><?php esc_html_e( 'Üks meeskond, algusest lõpuni', 'mooblipoisid-child' ); ?></h4>
+            <p><?php esc_html_e( 'Inimesed, kes teie esemed disainivad, valmistavad ja paigaldavad need ka ise, nii et üks kontaktisik vastutab kogu projekti eest.', 'mooblipoisid-child' ); ?></p>
           </div>
         </div>
       </div>

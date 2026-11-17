@@ -14,22 +14,38 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$mp_summary = array(
-	'created'         => array(),
-	'updated'         => array(),
-	'unchanged'       => array(),
-	'thumbnails'      => array(),
-	'thumb_notes'     => array(),
-	'notes'           => array(),
-);
+
+
+/**
+ * The summary this run collects (created / updated / unchanged / …).
+ *
+ * File-scope variables are not `$GLOBALS` under WP-CLI's `eval-file`, so the
+ * summary lives in one place that both the import steps and the report read.
+ */
+function &mp_summary() {
+	static $summary = null;
+
+	if ( null === $summary ) {
+		$summary = array(
+			'created'     => array(),
+			'updated'     => array(),
+			'unchanged'   => array(),
+			'thumbnails'  => array(),
+			'thumb_notes' => array(),
+			'notes'       => array(),
+		);
+	}
+
+	return $summary;
+}
 
 /**
  * Record a result line in the summary under the right bucket.
  */
 function mp_record( $status, $line ) {
-	global $mp_summary;
-	$bucket = in_array( $status, array( 'created', 'updated', 'unchanged' ), true ) ? $status : 'notes';
-	$mp_summary[ $bucket ][] = $line;
+	$summary = &mp_summary();
+	$bucket  = in_array( $status, array( 'created', 'updated', 'unchanged' ), true ) ? $status : 'notes';
+	$summary[ $bucket ][] = $line;
 }
 
 /**
@@ -139,6 +155,17 @@ function mp_attachment_id_by_url( $url ) {
 }
 
 /**
+ * The language the import writes (the site's default/source language).
+ *
+ * The import copies the Estonian homepage, so every entry it creates belongs to
+ * Estonian: Polylang would otherwise leave new entries without a language and
+ * the homepage queries (which are language-aware) would not find them.
+ */
+function mp_import_language() {
+	return function_exists( 'pll_default_language' ) ? (string) pll_default_language( 'slug' ) : 'et';
+}
+
+/**
  * Upsert a post. Matches first on the stable `_mp_import_key` marker (unique
  * per content item), then on exact post title (any status) within the type.
  * Creates only when neither matches.
@@ -221,6 +248,13 @@ function mp_upsert_post( $type, $import_key, $title, $fields, $menu_order, $thum
 			update_post_meta( $existing, '_mp_imported', '1' );
 		}
 
+		// Entries created before the content model was localised have no
+		// language yet: the homepage queries are language-aware, so give them
+		// the source language (idempotent, never overwrites a set language).
+		if ( function_exists( 'pll_get_post_language' ) && ! pll_get_post_language( $existing ) ) {
+			pll_set_post_language( $existing, mp_import_language() );
+		}
+
 		$status = $changes ? 'updated' : 'unchanged';
 		return array( 'ID' => $existing, 'status' => $status );
 	}
@@ -256,6 +290,11 @@ function mp_upsert_post( $type, $import_key, $title, $fields, $menu_order, $thum
 
 	update_post_meta( $new_id, '_mp_import_key', $type . ':' . $import_key );
 	update_post_meta( $new_id, '_mp_imported', '1' );
+
+	if ( function_exists( 'pll_set_post_language' ) ) {
+		pll_set_post_language( $new_id, mp_import_language() );
+	}
+
 	return array( 'ID' => $new_id, 'status' => 'created' );
 }
 
@@ -276,6 +315,11 @@ function mp_upsert_sector( $name, $description, $image_url, $order ) {
 		if ( $term->description !== $description ) {
 			wp_update_term( $term_id, 'sector', array( 'description' => $description ) );
 			$changes[] = 'description';
+		}
+		// Terms created before the content model was localised have no
+		// language yet: give them the source language (idempotent).
+		if ( function_exists( 'pll_get_term_language' ) && ! pll_get_term_language( $term_id ) ) {
+			pll_set_term_language( $term_id, mp_import_language() );
 		}
 		$img_before = get_term_meta( $term_id, 'sector_image', true );
 		if ( (string) $img_before !== (string) $image_url ) {
@@ -299,7 +343,44 @@ function mp_upsert_sector( $name, $description, $image_url, $order ) {
 	$term_id = (int) $result['term_id'];
 	update_term_meta( $term_id, 'sector_image', $image_url );
 	update_term_meta( $term_id, 'sector_order', $order );
+
+	if ( function_exists( 'pll_set_term_language' ) ) {
+		pll_set_term_language( $term_id, mp_import_language() );
+	}
+
 	return array( 'term_id' => $term_id, 'status' => 'created' );
+}
+
+/**
+ * Give a freshly created tag the next term relationship, in creation order.
+ *
+ * The homepage renders a project's tags in term-relationship id order (that is
+ * the order the editor added them). New relationships are numbered from the
+ * shared term id sequence, so a tag created later can end up with a *smaller*
+ * id than a tag that should render after it (as happened with the first
+ * translations). Re-numbering keeps the id order identical to the creation
+ * order the import uses. Idempotent: an id that is already the largest is left
+ * alone.
+ *
+ * @param int $term_id `project_tag` term whose relationships are re-numbered.
+ * @return void
+ */
+function mp_bump_tag_relationships( $term_id ) {
+	global $wpdb;
+
+	$tt_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT term_taxonomy_id FROM {$wpdb->term_taxonomy} WHERE term_id = %d AND taxonomy = 'project_tag'", (int) $term_id ) );
+	if ( ! $tt_id ) {
+		return;
+	}
+
+	$ids = array_map( 'intval', (array) $wpdb->get_col( "SELECT term_relationship_id FROM {$wpdb->term_relationships} WHERE term_taxonomy_id IN (SELECT term_taxonomy_id FROM {$wpdb->term_taxonomy} WHERE taxonomy = 'project_tag')" ) );
+	$max = $ids ? max( $ids ) : 0;
+
+	foreach ( (array) $wpdb->get_col( $wpdb->prepare( "SELECT term_relationship_id FROM {$wpdb->term_relationships} WHERE term_taxonomy_id = %d", $tt_id ) ) as $rel_id ) {
+		if ( (int) $rel_id < $max ) {
+			$wpdb->update( $wpdb->term_relationships, array( 'term_relationship_id' => $max + 1 ), array( 'term_relationship_id' => (int) $rel_id ) );
+		}
+	}
 }
 
 /**
@@ -309,15 +390,58 @@ function mp_upsert_tag( $name ) {
 	// `wp_insert_term()` applies `sanitize_term()` which can double-encode
 	// ampersands (e.g. "Glass & Oak" -> "Glass &amp; Oak"), so decode first.
 	$name = html_entity_decode( $name, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
-	$term = get_term_by( 'name', $name, 'project_tag' );
-	if ( $term && ! is_wp_error( $term ) ) {
+
+	/*
+	 * Load the terms without a name filter: `get_term_by( 'name', … )` compares
+	 * with `=` so it misses names stored HTML-encoded, and it would otherwise
+	 * leave the encoded duplicates ("Glass &amp; Oak • Tallinn") in place.
+	 */
+	$term  = null;
+	$terms = get_terms(
+		array(
+			'taxonomy'               => 'project_tag',
+			'hide_empty'             => false,
+			'lang'                   => '',
+			'update_term_meta_cache' => false,
+		)
+	);
+
+	foreach ( (array) $terms as $candidate ) {
+		if ( is_wp_error( $candidate ) ) {
+			continue;
+		}
+		if ( html_entity_decode( $candidate->name, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) === $name ) {
+			$term = $candidate;
+			break;
+		}
+	}
+
+	if ( $term instanceof WP_Term ) {
+		// A term created by an earlier import may carry the encoded name.
+		if ( $term->name !== $name ) {
+			wp_update_term( (int) $term->term_id, 'project_tag', array( 'name' => $name ) );
+		}
+		if ( function_exists( 'pll_get_term_language' ) && ! pll_get_term_language( (int) $term->term_id ) ) {
+			pll_set_term_language( (int) $term->term_id, mp_import_language() );
+		}
+
 		return (int) $term->term_id;
 	}
+
 	$result = wp_insert_term( $name, 'project_tag' );
 	if ( is_wp_error( $result ) ) {
 		echo 'ERROR creating project_tag "' . $name . '": ' . $result->get_error_message() . "\n";
 		return 0;
 	}
+
+	if ( function_exists( 'pll_set_term_language' ) ) {
+		pll_set_term_language( (int) $result['term_id'], mp_import_language() );
+	}
+
+	// New tags get a relationship id above every existing one, so the order in
+	// which the import adds them is also the order they render in.
+	mp_bump_tag_relationships( (int) $result['term_id'] );
+
 	return (int) $result['term_id'];
 }
 
@@ -453,6 +577,7 @@ foreach ( $mp_projects as $proj ) {
 		wp_set_post_terms( $r['ID'], $tag_ids, 'project_tag', false );
 
 		$thumb_id = mp_attachment_id_for_upload_url( $proj['image'] );
+		$mp_summary = &mp_summary();
 		$mp_summary['thumbnails'][ $proj['title'] ] = $thumb_id;
 		if ( ! $thumb_id ) {
 			$mp_summary['thumb_notes'][] = $proj['title'] . ': no attachment found/created for ' . $proj['image'];
@@ -571,20 +696,42 @@ $mp_settings = array(
 
 $mp_before = get_option( 'mp_homepage_settings', array() );
 $mp_before = is_array( $mp_before ) ? $mp_before : array();
-$mp_after  = wp_parse_args( $mp_settings, $mp_before );
 
-if ( $mp_before === $mp_after ) {
-	mp_record( 'unchanged', 'mp_homepage_settings option' );
+/*
+ * The option stores one field set per language (`array( 'et' => … )`), while
+ * older runs stored the Estonian fields flat. A flat value is re-keyed under
+ * the source language here (idempotent) so a re-run never turns the option back
+ * into the flat shape and never overwrites the other languages.
+ */
+$mp_language = mp_import_language();
+$mp_localised = true;
+foreach ( array_keys( $mp_settings ) as $mp_field ) {
+	if ( array_key_exists( $mp_field, $mp_before ) ) {
+		$mp_localised = false;
+		break;
+	}
+}
+if ( ! $mp_localised ) {
+	$mp_before = array( $mp_language => $mp_before );
+}
+
+$mp_lang_before = isset( $mp_before[ $mp_language ] ) && is_array( $mp_before[ $mp_language ] ) ? $mp_before[ $mp_language ] : array();
+$mp_after       = wp_parse_args( $mp_settings, $mp_lang_before );
+
+if ( $mp_lang_before === $mp_after ) {
+	mp_record( 'unchanged', 'mp_homepage_settings option (' . $mp_language . ')' );
 } else {
 	// Only write keys we manage so editor-added keys survive a re-run.
-	$mp_merged = array_merge( $mp_before, $mp_settings );
-	update_option( 'mp_homepage_settings', $mp_merged );
-	mp_record( 'updated', 'mp_homepage_settings option' );
+	$mp_before[ $mp_language ] = array_merge( $mp_lang_before, $mp_settings );
+	update_option( 'mp_homepage_settings', $mp_before );
+	mp_record( 'updated', 'mp_homepage_settings option (' . $mp_language . ')' );
 }
 
 /* ==========================================================================
  * Report
  * ========================================================================== */
+$mp_summary = &mp_summary();
+
 echo "=== mp import summary ===\n";
 foreach ( array( 'created', 'updated', 'unchanged' ) as $bucket ) {
 	echo str_pad( $bucket . ':', 11 ) . count( $mp_summary[ $bucket ] ) . "\n";

@@ -6,7 +6,9 @@
  * "Cafés, Bars & Restaurants" column, the last six the "Retail Shops" column.
  * The two column headings and their icons are the labels of the two columns
  * themselves and stay fixed; every list item (title + short description) comes
- * from the entries in menu_order ASC (the post date breaks ties).
+ * from the entries in menu_order ASC (the post date breaks ties). The `lang`
+ * query var keeps the two columns in the active language, and adds the site
+ * language as a fallback while a language has no ranges of its own yet.
  *
  * @package mooblipoisid-child
  */
@@ -20,6 +22,7 @@ $mp_range_query = new WP_Query(
 		'posts_per_page'         => -1,
 		'orderby'                => 'menu_order',
 		'order'                  => 'ASC',
+		'lang'                   => mooblipoisid_section_languages( 'range' ),
 		'ignore_sticky_posts'    => true,
 		'no_found_rows'          => true,
 		'update_post_term_cache' => false,
@@ -39,12 +42,12 @@ $mp_range_split = (int) floor( count( $mp_ranges ) / 2 );
 
 $mp_range_columns = array(
 	array(
-		'title'    => 'Cafés, Bars &amp; Restaurants',
+		'title'    => esc_html__( 'Kohvikud, baarid ja restoranid', 'mooblipoisid-child' ),
 		'icon'     => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M18 8h2a2 2 0 0 1 0 4h-2"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/></svg>',
 		'entries'  => array_slice( $mp_ranges, 0, $mp_range_split ),
 	),
 	array(
-		'title'    => 'Retail Shops',
+		'title'    => esc_html__( 'Jaekauplused', 'mooblipoisid-child' ),
 		'icon'     => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 9l1-5h16l1 5"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/></svg>',
 		'entries'  => array_slice( $mp_ranges, $mp_range_split ),
 	),
@@ -54,11 +57,11 @@ $mp_range_columns = array(
   <div class="mp-container">
     <div class="mp-section-head">
       <div>
-        <span class="mp-eyebrow">What We Make</span>
-        <h2 class="mp-headline-lg">The Full Commercial Range</h2>
+        <span class="mp-eyebrow"><?php esc_html_e( 'Mida me valmistame', 'mooblipoisid-child' ); ?></span>
+        <h2 class="mp-headline-lg"><?php esc_html_e( 'Täielik äriklassi valik', 'mooblipoisid-child' ); ?></h2>
       </div>
       <div class="mp-section-head__intro">
-        <p class="mp-body">Made to your drawings or developed with your architect, and produced as a complete package so that everything fits together on installation day.</p>
+        <p class="mp-body"><?php esc_html_e( 'Valmistatud teie jooniste järgi või koostöös teie arhitektiga ning toodetud täieliku paketina, nii et kõik sobib omavahel kokku paigalduspäeval.', 'mooblipoisid-child' ); ?></p>
       </div>
     </div>
     <div class="mp-ranges">

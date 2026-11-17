@@ -8,6 +8,13 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Homepage content model: post types, taxonomies, entry details and the
+ * Homepage Settings screen. Kept in its own file so functions.php stays
+ * focused on the front-end behaviour.
+ */
+require get_stylesheet_directory() . '/inc/content-model.php';
+
+/**
  * Load the child stylesheet after the parent's compiled styles.
  */
 add_action(

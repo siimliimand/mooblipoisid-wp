@@ -33,6 +33,7 @@ Mööblipoisid designs, builds and installs custom furniture. Wood, metal and st
 |-------------|-------------------------------------------------|
 | CMS         | WordPress 7.1.4 (committed in `public/`)        |
 | Theme       | [Kadence](https://wordpress.org/themes/kadence/) 1.6.0 + `mooblipoisid-child` |
+| Content     | Structured & admin-editable (custom post types + taxonomies + Homepage Settings) |
 | Languages   | Estonian only for now (`et`); `ru`/`en` planned as a follow-up |
 | Local dev   | DDEV (primary) or Docker (`docker-compose.yml`) |
 | Production  | zone.ee (PHP hosting)                           |
@@ -45,7 +46,7 @@ The production site will be trilingual:
 - **ru** — Russian (follow-up)
 - **en** — English (follow-up)
 
-Translations will be managed with a multilingual plugin (e.g. Polylang or WPML — to be decided during development). All page content, menus and product/service descriptions must exist in all three languages.
+Translations will be managed with a multilingual plugin (Polylang planned). All page content, menus and product/service descriptions must exist in all three languages. The homepage content is already structured into translatable custom post types and taxonomies, so the translation plugin can operate on real posts and terms rather than opaque markup.
 
 ## Local Development
 
@@ -95,21 +96,36 @@ Production is hosted at [zone.ee](https://www.zone.ee/) on shared PHP hosting.
 ├── README.md                       # this file
 ├── docker-compose.yml              # plain Docker fallback (WordPress + MariaDB)
 ├── .ddev/                          # DDEV project config (WordPress, PHP 8.3)
+├── bin/                            # helper scripts (one-time content import)
 ├── public/                         # WordPress docroot (committed)
 │   └── wp-content/themes/
 │       ├── kadence/                # parent theme (do not edit)
-│       └── mooblipoisid-child/     # all project code: design tokens, homepage styles, enquiry form
+│       └── mooblipoisid-child/     # all project code
+│           ├── front-page.php      # renders the homepage from the content model
+│           ├── template-parts/home/  # one template part per homepage section
+│           ├── inc/content-model.php # CPT/taxonomy/Homepage Settings registration
+│           ├── functions.php       # enquiry form + shortcodes
+│           └── style.css           # design tokens + section styles
 ├── docs/
 │   ├── html/                       # design prototype / static reference (not part of WP)
+│   ├── EDITOR-GUIDE.md             # how to edit homepage content in wp-admin
 │   ├── kadence-theme-mods.json     # customizer backup (recreate via wp eval-file if DB is lost)
 │   ├── kadence-global-palette.json # global palette backup
-│   └── homepage-content.html       # homepage block markup backup (front page lives in the DB)
-└── openspec/                       # specs and change proposals
+│   └── homepage-content.html       # REFERENCE SNAPSHOT of the original static markup (not rendered)
+└── openspec/                       # specs and change proposals (completed changes in changes/archive/)
 ```
 
 ### Homepage
 
-The front page (ID 26) is built from Kadence post settings (`fullwidth`, `uncontained`, title hidden) and block markup mirroring `docs/html/index.html`. The enquiry form is the `[mooblipoisid_enquiry_form]` shortcode from the child theme; submissions email both managers (verify deliverability with SMTP before launch).
+The homepage is rendered dynamically by `front-page.php`, which pulls content from a structured, admin-editable content model — **not** from page block markup. Editors maintain it entirely in wp-admin (no code/HTML); see **`docs/EDITOR-GUIDE.md`**.
+
+- **Custom post types:** `project` (featured project cards), `testimonial` (client stories), `range` (product ranges), `capability`, `step` (process steps), `trust_stat` (trust-strip facts). Each supports title, a short description, a card image and ordering.
+- **Taxonomies:** `sector` (Hospitality / Retail / Private — drives the sectors section and tags projects) and `project_tag` (materials & features shown on project cards).
+- **Homepage Settings** (Settings → Homepage Settings): the one-off static text — hero headline/sub/CTAs, ethos band, consultation intro.
+
+Each homepage section is a template part in `template-parts/home/` that queries the matching content and emits the design's markup. `docs/homepage-content.html` is kept only as a reference snapshot of the original static version.
+
+All post types and taxonomies are registered `public`, so a multilingual plugin (e.g. Polylang) will recognise them for translation. The enquiry form is the `[mooblipoisid_enquiry_form]` shortcode (rendered inside the `#consultation` section); submissions email both managers (verify deliverability with SMTP before launch).
 
 ## Contacts
 

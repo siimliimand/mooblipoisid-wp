@@ -12,3 +12,7 @@ public/.htaccess
 *.log
 .idea/
 .vscode/
+
+# Python bytecode cache (helper scripts in bin/)
+__pycache__/
+*.pyc

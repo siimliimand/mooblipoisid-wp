@@ -28,8 +28,8 @@ msgstr "Недавние коммерческие и ритейл-проекты
 msgid "Võimekused"
 msgstr "Возможности"
 
-msgid "Üks töökoda. Iga materjal, mida teie koht vajab."
-msgstr "Одна мастерская. Любой материал, который нужно вашему заведению."
+msgid "Üks partner. Kogu teie ruumi sisustus."
+msgstr "Одна команда. Всё для вашего интерьера."
 
 msgid "Protsess"
 msgstr "Процесс"
@@ -50,8 +50,8 @@ msgstr "Каждое заведение уникально, но требова�
 msgid "Valmistatud teie jooniste järgi või koostöös teie arhitektiga ning toodetud täieliku paketina, nii et kõik sobib omavahel kokku paigalduspäeval."
 msgstr "Изготавливается по вашим чертежам или в сотрудничестве с вашим архитектором и производится единым комплектом, чтобы всё идеально сошлось в день монтажа."
 
-msgid "Baar ei ole harva ainult puit. Kuna puit, metall ja kiv valmistatakse kõik meie enda töökodades, saabuvad osad viimistletuna, omavahel sobivatena ja paigaldusvalmisena, ilma tarnijate vahel jooksmiseta."
-msgstr "Бар — это редко только дерево. Поскольку дерево, металл и камень мы производим сами, детали приходят отделанными, сочетающимися и готовыми к монтажу — без беготни между поставщиками."
+msgid "Baar ei ole harva ainult puit. Kuna mööbel ja sisustuselemendid valmistatakse meie enda töökojas, saabuvad osad viimistletuna ja paigaldusvalmisena, ilma tarnijate vahel jooksmiseta."
+msgstr "Бар — это редко только дерево. Поскольку мебель и элементы интерьера изготавливаются в собственной мастерской, детали приходят отделанными и готовыми к монтажу — без беготни между поставщиками."
 
 msgid "Töötame teie siseviimistluse graafiku järgi, koordineerime teie arhitekti ja töövõtjatega ning paigaldame teie avamiskuupäeva ümber."
 msgstr "Мы работаем по вашему графику отделки, координируем действия с архитектором и подрядчиками и монтируем с учётом вашей даты открытия."
@@ -82,8 +82,8 @@ msgstr "Обсудить похожий проект"
 msgid "Oma tootmine"
 msgstr "Собственное производство"
 
-msgid "Puit, metall ja kiv ühe katuse all Tallinnas"
-msgstr "Дерево, металл и камень под одной крышей в Таллине"
+msgid "Mööbel ja sisustus ühe katuse all Tallinnas"
+msgstr "Мебель и интерьер под одной крышей в Таллине"
 
 msgid "Valmis kandmiseks"
 msgstr "Готово к нагрузке"

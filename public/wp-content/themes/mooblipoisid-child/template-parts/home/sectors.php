@@ -32,16 +32,20 @@ $mp_sectors = mooblipoisid_drop_translated_original_terms( $mp_sectors );
 /*
  * The card headline, link and photo alt text are keyed by the Estonian
  * (default) slug below, so every language resolves them through the slug of
- * its term's original.
+ * its term's original. Resolve each term to its Estonian original via Polylang
+ * so a translated sector still maps to the stable default-language key.
  */
-$mp_sector_origins = function_exists( 'pll_get_term' ) ? pll_get_term( 'all', 'all' ) : array();
-$mp_sector_origins = is_array( $mp_sector_origins ) ? $mp_sector_origins : array();
-
 foreach ( $mp_sectors as $mp_sector ) {
 	$mp_sector->mp_sort_order = (int) get_term_meta( $mp_sector->term_id, 'sector_order', true );
 
-	$mp_origin_id = isset( $mp_sector_origins[ $mp_sector->term_id ] ) ? (int) $mp_sector_origins[ $mp_sector->term_id ] : (int) $mp_sector->term_id;
-	$mp_origin    = $mp_origin_id === (int) $mp_sector->term_id ? $mp_sector : get_term( $mp_origin_id, 'sector' );
+	$mp_origin_id = (int) $mp_sector->term_id;
+	if ( function_exists( 'pll_get_term_translations' ) ) {
+		$mp_translations = pll_get_term_translations( (int) $mp_sector->term_id );
+		if ( is_array( $mp_translations ) && ! empty( $mp_translations['et'] ) ) {
+			$mp_origin_id = (int) $mp_translations['et'];
+		}
+	}
+	$mp_origin = $mp_origin_id === (int) $mp_sector->term_id ? $mp_sector : get_term( $mp_origin_id, 'sector' );
 	$mp_sector->mp_origin_slug = ( $mp_origin instanceof WP_Term ) ? $mp_origin->slug : $mp_sector->slug;
 }
 
@@ -102,7 +106,7 @@ $mp_sector_arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
         $mp_sector_key   = isset( $mp_sector->mp_origin_slug ) ? (string) $mp_sector->mp_origin_slug : (string) $mp_sector->slug;
         $mp_sector_link  = isset( $mp_sector_links[ $mp_sector_key ] ) ? $mp_sector_links[ $mp_sector_key ] : array(
             'href'  => '#consultation',
-            'label' => 'Enquire',
+            'label' => __( 'Küsi pakkumist', 'mooblipoisid-child' ),
         );
         $mp_sector_img   = (string) get_term_meta( $mp_sector->term_id, 'sector_image', true );
         $mp_sector_alt   = isset( $mp_sector_alts[ $mp_sector_key ] ) ? $mp_sector_alts[ $mp_sector_key ] : wp_strip_all_tags( $mp_sector->name );

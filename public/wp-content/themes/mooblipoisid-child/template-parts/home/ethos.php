@@ -24,7 +24,7 @@ $mp_ethos_quote = isset( $mp_settings['ethos_quote'] ) ? (string) $mp_settings['
         </div>
         <div class="mp-ethos__badge">
           <p><?php esc_html_e( 'Oma tootmine', 'mooblipoisid-child' ); ?></p>
-          <p><?php esc_html_e( 'Puit, metall ja kiv ühe katuse all Tallinnas', 'mooblipoisid-child' ); ?></p>
+          <p><?php esc_html_e( 'Mööbel ja sisustus ühe katuse all Tallinnas', 'mooblipoisid-child' ); ?></p>
         </div>
       </div>
       <div>

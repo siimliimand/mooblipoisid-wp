@@ -1,0 +1,262 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: mooblipoisid-child 1.0\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# ---- Section headings ----
+msgid "Kellele me ehitame"
+msgstr "Who We Build For"
+
+msgid "Mööbel äripindade sisekujunduseks"
+msgstr "Furniture Made for Commercial Interiors"
+
+msgid "Mida me valmistame"
+msgstr "What We Make"
+
+msgid "Täielik äriklassi valik"
+msgstr "The Full Commercial Range"
+
+msgid "Valitud tööd"
+msgstr "Selected Commissions"
+
+msgid "Hiljutised äri- ja jaemüügiprojektid"
+msgstr "Recent Venue & Retail Projects"
+
+msgid "Võimekused"
+msgstr "Capabilities"
+
+msgid "Üks partner. Kogu teie ruumi sisustus."
+msgstr "One partner. Everything your space needs."
+
+msgid "Protsess"
+msgstr "The Process"
+
+msgid "Briefist avamispäevani"
+msgstr "From Brief to Opening Day"
+
+msgid "Klientide lood"
+msgstr "Client Stories"
+
+msgid "Mida meie kliendid ütlevad"
+msgstr "What Our Clients Say"
+
+# ---- Intro paragraphs ----
+msgid "Iga koht on erinev, kuid nõudmised on samad: pikad lahtiolekuajad, pidev kasutus ja bränd, mis peab juba esimesest päevast õige välja nägema."
+msgstr "Every venue is different, but the demands are the same: long opening hours, constant use and a brand that has to look right from day one."
+
+msgid "Valmistatud teie jooniste järgi või koostöös teie arhitektiga ning toodetud täieliku paketina, nii et kõik sobib omavahel kokku paigalduspäeval."
+msgstr "Made to your drawings or developed with your architect, and produced as a complete package so that everything fits together on installation day."
+
+msgid "Baar ei ole harva ainult puit. Kuna mööbel ja sisustuselemendid valmistatakse meie enda töökojas, saabuvad osad viimistletuna ja paigaldusvalmisena, ilma tarnijate vahel jooksmiseta."
+msgstr "A bar is rarely just timber. Because the furniture and interior elements are made in our own workshop, parts arrive finished and ready to install, with no chasing between suppliers."
+
+msgid "Töötame teie siseviimistluse graafiku järgi, koordineerime teie arhitekti ja töövõtjatega ning paigaldame teie avamiskuupäeva ümber."
+msgstr "We work to your fit-out programme, coordinate with your architect and contractors, and install around your opening date."
+
+# ---- Sector cards ----
+msgid "Kohvikud, baarid ja restoranid"
+msgstr "Cafés, Bars & Restaurants"
+
+msgid "Jaemüük ja kaubanduslik sisekujundus"
+msgstr "Retail & Shopfitting"
+
+msgid "Eraköögid"
+msgstr "Private Kitchens"
+
+msgid "Jaekauplused"
+msgstr "Retail Shops"
+
+msgid "Vaata toitlustusvalikut"
+msgstr "See the Hospitality Range"
+
+msgid "Vaata jaemüügivalikut"
+msgstr "See the Retail Range"
+
+msgid "Arutage sarnast projekti"
+msgstr "Discuss a Similar Project"
+
+# ---- Ethos ----
+msgid "Oma tootmine"
+msgstr "In-House Production"
+
+msgid "Mööbel ja sisustus ühe katuse all Tallinnas"
+msgstr "Furniture and interiors under one roof in Tallinn"
+
+msgid "Valmis kandmiseks"
+msgstr "Built to Take the Wear"
+
+msgid "Kuumus- ja kriipimiskindlad pealsed, tugevdatud liited ja äriklassi furnituur igapäevaseks kasutamiseks."
+msgstr "Heat- and scratch-resistant tops, reinforced joints and commercial-grade hardware for all-day, every-day use."
+
+msgid "Üks meeskond, algusest lõpuni"
+msgstr "One Team, Start to Finish"
+
+msgid "Inimesed, kes teie esemed disainivad, valmistavad ja paigaldavad need ka ise, nii et üks kontaktisik vastutab kogu projekti eest."
+msgstr "The people who design your pieces also build and install them, so one contact is accountable for the whole project."
+
+# ---- Consultation ----
+msgid "Tootmisjuht — Andre Merila"
+msgstr "Production Manager — Andre Merila"
+
+msgid "Projektijuht — Marilyn Salu"
+msgstr "Project Manager — Marilyn Salu"
+
+msgid "Töökoja ja näidiste külastus"
+msgstr "Workshop & Sample Visits"
+
+msgid "Tutvuge materjalide, viimistluste ja töös olevate projektidega meie töökojas aadressil Võidu 75, Tallinn, kokkuleppel."
+msgstr "See materials, finishes and work in progress at our workshop at Võidu 75, Tallinn, by appointment."
+
+# ---- Enquiry form ----
+msgid "Jätke see väli tühjaks"
+msgstr "Leave this field empty"
+
+msgid "Aitäh. Teie päring on edastatud meie projektitiimile. Vaatame teie briefi üle 48 tunni jooksul."
+msgstr "Thank you. Your enquiry has been routed to our project team. We will review your brief within 48 hours."
+
+msgid "Teie päringu saatmisel läks midagi valesti. Palun kirjutage otse aadressil marilyn@mooblipoisid.ee."
+msgstr "Something went wrong sending your enquiry. Please email marilyn@mooblipoisid.ee directly."
+
+msgid "Täisnimi *"
+msgstr "Full Name *"
+
+msgid "nt Astrid Lindgren"
+msgstr "e.g. Astrid Lindgren"
+
+msgid "Ettevõte / koht *"
+msgstr "Company / Venue *"
+
+msgid "nt Kohvik Nordlys OÜ"
+msgstr "e.g. Café Nordlys OÜ"
+
+msgid "E-posti aadress *"
+msgstr "Email Address *"
+
+msgid "Telefoninumber"
+msgstr "Phone Number"
+
+msgid "Projekti tüüp *"
+msgstr "Project Type *"
+
+msgid "Palun valige…"
+msgstr "Please choose…"
+
+msgid "Kohvik, baar või restoran"
+msgstr "Café, Bar or Restaurant"
+
+msgid "Jaemüügipood / kaubanduslik sisekujundus"
+msgstr "Retail Store / Shopfit"
+
+msgid "Ainult letid või istekohad"
+msgstr "Counters or Seating Only"
+
+msgid "Mitme objekti lahendus"
+msgstr "Multi-Site Roll-Out"
+
+msgid "Eraköök"
+msgstr "Private Kitchen"
+
+msgid "Soovitud avamis- / paigaldusaeg"
+msgstr "Target Opening / Install Window"
+
+msgid "2027. aasta 1. kvartal"
+msgstr "Q1 2027"
+
+msgid "2027. aasta 2. kvartal"
+msgstr "Q2 2027"
+
+msgid "2027. aasta teine poolaasta"
+msgstr "Second Half of 2027"
+
+msgid "Veel planeerimisel"
+msgstr "Still Planning"
+
+msgid "Koha / poe asukoht"
+msgstr "Venue / Store Location"
+
+msgid "nt Tallinn, Stockholm, Helsinki, Riia"
+msgstr "e.g. Tallinn, Stockholm, Helsinki, Riga"
+
+msgid "Brief ja mõõdud"
+msgstr "Brief & Dimensions"
+
+msgid "Rääkige meile, mida vajate: nt 6 m baar espresso-jaama ja letialuste külmikutega, 40 istekohta pingiistmetel, bränditud kassalauk. Lisage eelarvevahemik või arhitekti andmed, kui need on olemas."
+msgstr "Tell us what you need: e.g. 6 m bar with espresso station and under-counter fridges, 40 seats of banquette, branded checkout counter. Include budget range or architect details if you have them."
+
+msgid "Lisage plaanid, joonised või kontseptsioonitahvlid"
+msgstr "Attach Floor Plans, Drawings or Concept Boards"
+
+msgid "PDF, DWG, PNG, JPEG kuni 25MB"
+msgstr "PDF, DWG, PNG, JPEG up to 25MB"
+
+msgid "Saada projektipäring"
+msgstr "Submit Project Enquiry"
+
+# ---- Footer / misc ----
+msgid "Küsi pakkumist"
+msgstr "Request a Quote"
+
+msgid "Vaata äriprojekte"
+msgstr "See Commercial Projects"
+
+# ---- Footer widgets ----
+msgid "Erilahendusega mööbel ja puusepatööd kohvikutele, baaridele, restoranidele ja jaemüügile, lisaks eraköögid, valmistatud kestva põhjalikkusega."
+msgstr "Custom furniture and joinery for cafés, bars, restaurants and retail, plus bespoke private kitchens, crafted with disciplined permanence."
+
+msgid "Töökoda"
+msgstr "Workshop"
+
+msgid "Avasta"
+msgstr "Explore"
+
+msgid "Otsingud"
+msgstr "Direct Inquiries"
+
+msgid "Toitlustus"
+msgstr "Hospitality"
+
+msgid "Jaemüük"
+msgstr "Retail"
+
+msgid "Projektid"
+msgstr "Projects"
+
+msgid "Tellimise protsess"
+msgstr "Commissioning Process"
+
+msgid "Pressiportfell"
+msgstr "Press Folio"
+
+msgid "Äripindade siseviimistluse, jaemüügikettide laiendamise ja arhitektide koostöö jaoks saatke oma brief otse meie projektide lauale."
+msgstr "For venue fit-outs, retail roll-outs and architect partnerships, send your brief straight to our projects desk."
+
+msgid "Kõik õigused kaitstud."
+msgstr "All rights reserved."
+
+msgid "Komisjonitingimused"
+msgstr "Terms of Commission"
+
+msgid "Materjalide päritolu"
+msgstr "Material Provenance"
+
+msgid "Privaatsuspoliitika"
+msgstr "Privacy Policy"
+
+# ---- Footer widget blocks (full HTML msgid) ----
+msgid "<div class=\"mp-footer-brand-block\"><div class=\"mp-footer-brand-top\"><div class=\"mp-footer-logo-row\"><img alt=\"Mööblipoisid Logo\" class=\"mp-footer-logo\" src=\"https://mooblipoisid.ddev.site/wp-content/uploads/2026/11/mp-2-1.jpg\"><span class=\"mp-footer-brand-name\">Mööblipoisid</span></div><p class=\"mp-footer-tagline\">Erilahendusega mööbel ja puusepatööd kohvikutele, baaridele, restoranidele ja jaemüügile, lisaks eraköögid, valmistatud kestva põhjalikkusega.</p></div></div>"
+msgstr "<div class=\"mp-footer-brand-block\"><div class=\"mp-footer-brand-top\"><div class=\"mp-footer-logo-row\"><img alt=\"Mööblipoisid Logo\" class=\"mp-footer-logo\" src=\"https://mooblipoisid.ddev.site/wp-content/uploads/2026/11/mp-2-1.jpg\"><span class=\"mp-footer-brand-name\">Mööblipoisid</span></div><p class=\"mp-footer-tagline\">Custom furniture and joinery for cafés, bars, restaurants and retail, plus bespoke private kitchens, crafted with disciplined permanence.</p></div></div>"
+
+msgid "<div class=\"mp-footer-col\"><span class=\"mp-footer-label\">Töökoda</span><div class=\"mp-footer-workshop\"><div><p class=\"mp-footer-strong\">Mööblipoisid OÜ</p><p class=\"mp-footer-sm\">Võidu 75, 11212 Tallinn, Eesti</p><p class=\"mp-footer-sm\">Reg. nr 12340882</p><p class=\"mp-footer-sm mp-footer-mt\">LHV: EE437700771003181572</p></div></div></div>"
+msgstr "<div class=\"mp-footer-col\"><span class=\"mp-footer-label\">Workshop</span><div class=\"mp-footer-workshop\"><div><p class=\"mp-footer-strong\">Mööblipoisid OÜ</p><p class=\"mp-footer-sm\">Võidu 75, 11212 Tallinn, Estonia</p><p class=\"mp-footer-sm\">Reg. nr 12340882</p><p class=\"mp-footer-sm mp-footer-mt\">LHV: EE437700771003181572</p></div></div></div>"
+
+msgid "<div class=\"mp-footer-col\"><span class=\"mp-footer-label\">Avasta</span><ul class=\"mp-footer-links\"><li><a href=\"/#hospitality\">Toitlustus</a></li><li><a href=\"/#retail\">Jaemüük</a></li><li><a href=\"/#projects\">Projektid</a></li><li><a href=\"/#process\">Tellimise protsess</a></li><li><a href=\"#\">Instagram</a></li><li><a href=\"#\">Pressiportfell</a></li></ul></div>"
+msgstr "<div class=\"mp-footer-col\"><span class=\"mp-footer-label\">Explore</span><ul class=\"mp-footer-links\"><li><a href=\"/#hospitality\">Hospitality</a></li><li><a href=\"/#retail\">Retail</a></li><li><a href=\"/#projects\">Projects</a></li><li><a href=\"/#process\">Commissioning Process</a></li><li><a href=\"#\">Instagram</a></li><li><a href=\"#\">Press Folio</a></li></ul></div>"
+
+msgid "<div class=\"mp-footer-col\"><span class=\"mp-footer-label\">Otsingud</span><p class=\"mp-footer-sm\">Äripindade siseviimistluse, jaemüügikettide laiendamise ja arhitektide koostöö jaoks saatke oma brief otse meie projektide lauale.</p><a class=\"mp-footer-cta\" href=\"/#consultation\"><span>Küsi pakkumist</span><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg></a></div>"
+msgstr "<div class=\"mp-footer-col\"><span class=\"mp-footer-label\">Direct Inquiries</span><p class=\"mp-footer-sm\">For venue fit-outs, retail roll-outs and architect partnerships, send your brief straight to our projects desk.</p><a class=\"mp-footer-cta\" href=\"/#consultation\"><span>Request a Quote</span><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg></a></div>"
+
+msgid "<div class=\"mp-footer-bottom\"><p>© {year} {site-title} OÜ. Kõik õigused kaitstud.</p><div class=\"mp-footer-legal-links\"><a href=\"#\">Komisjonitingimused</a><a href=\"#\">Materjalide päritolu</a><a href=\"#\">Privaatsuspoliitika</a></div></div>"
+msgstr "<div class=\"mp-footer-bottom\"><p>© {year} {site-title} OÜ. All rights reserved.</p><div class=\"mp-footer-legal-links\"><a href=\"#\">Terms of Commission</a><a href=\"#\">Material Provenance</a><a href=\"#\">Privacy Policy</a></div></div>"

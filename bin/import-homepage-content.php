@@ -481,7 +481,7 @@ $mp_ranges = array(
 	// Hospitality group.
 	array( 'Bars & Service Counters', 'Integrated refrigeration, sinks, espresso stations and back-bar units.' ),
 	array( 'Banquettes & Booths', 'Built-in seating fitted to your floor plan, upholstered in contract-grade fabrics.' ),
-	array( 'Dining Tables', 'Compact laminate, sintered stone or treated hardwood tops that take daily abuse.' ),
+	array( 'Dining Tables', 'Compact laminate or treated hardwood tops that take daily abuse.' ),
 	array( 'Barstools & Chairs', 'Solid timber and metal frames, built to be stacked, scraped and sat on all day.' ),
 	array( 'Waiter Stations', 'Compact service points with POS housing, cutlery drawers and storage.' ),
 	array( 'Acoustic Wall Panelling', 'Timber slat and fabric panels that cut noise and add warmth.' ),
@@ -490,7 +490,7 @@ $mp_ranges = array(
 	array( 'Modular Display Shelving', 'Reconfigurable systems that adapt as ranges and seasons change.' ),
 	array( 'Clothing Racks', 'Timber and metal rails and wall systems built to your brand finish.' ),
 	array( 'Illuminated Glass Cases', 'Lit display cabinets for jewellery, cosmetics and premium product.' ),
-	array( 'Fitting Room Joinery', 'Complete cubicles with doors, mirrors, hooks and seating.' ),
+	array( 'Fitting Rooms', 'Complete cubicles with doors, mirrors, hooks and seating.' ),
 	array( 'Branded Feature Walls', 'Statement walls that put your identity in front of every customer.' ),
 );
 
@@ -513,7 +513,7 @@ $mp_projects = array(
 		'title'  => 'Specialty Coffee Bar',
 		'excerpt' => 'Service counter with integrated espresso station and refrigeration, fitted banquettes and acoustic wall slats.',
 		'meta'   => 'Tallinn, Estonia • Café & Roastery',
-		'tags'   => array( 'Smoked Oak', 'Sintered Stone Top' ),
+		'tags'   => array( 'Smoked Oak', 'Solid Timber Top' ),
 		'image'  => 'https://mooblipoisid.ddev.site/wp-content/uploads/2026/11/mp-9.jpg',
 		'order'  => 0, // Lead card: renders first.
 	),
@@ -527,7 +527,7 @@ $mp_projects = array(
 	),
 	array(
 		'title'  => 'Cocktail Bar',
-		'excerpt' => 'Bar with stone top, brass back-bar shelving and concealed under-counter refrigeration.',
+		'excerpt' => 'Bar with timber top, brass back-bar shelving and concealed under-counter refrigeration.',
 		'meta'   => 'Helsinki • Bar',
 		'tags'   => array( 'Blackened Ash • Helsinki' ),
 		'image'  => 'https://mooblipoisid.ddev.site/wp-content/uploads/2026/11/mp-1.jpg',
@@ -589,10 +589,10 @@ foreach ( $mp_projects as $proj ) {
  * 4. Capability cards (#capabilities)
  * ========================================================================== */
 $mp_capabilities = array(
-	array( 'CNC Woodworking', 'Precise, repeatable production of counters, panels and seating frames, from one-off bars to multi-site roll-outs.' ),
-	array( 'Metalworking', 'Steel and brass frames, footrails, shelving brackets and display structures in finishes that match your interior.' ),
-	array( 'Stone Fabrication', 'Sintered stone and natural stone bar tops, cut, polished and fitted with cut-outs for sinks and equipment.' ),
-	array( 'Commercial-Grade Surfaces', 'Compact laminate, sintered stone and treated hardwood chosen to resist heat, scratches and spills.' ),
+	array( 'Custom Furniture', 'Counters, panels and seating made to your drawings — from one-off bars to multi-site roll-outs.' ),
+	array( 'Bar & Restaurant Interiors', 'Back-bars, counters, shelving and service points in your brand finish.' ),
+	array( 'Retail Interiors', 'Sales counters, display units and feature surfaces that show your product at its best.' ),
+	array( 'Commercial-Grade Surfaces', 'Compact laminate and treated hardwood chosen to resist heat, scratches and spills.' ),
 );
 
 foreach ( $mp_capabilities as $i => $cap ) {
@@ -606,7 +606,7 @@ foreach ( $mp_capabilities as $i => $cap ) {
 $mp_steps = array(
 	array( 'Brief & Site Survey', 'We review your drawings and concept, then measure the space on site: floor levels, services, equipment and customer flow.', 'Week 01 – 02' ),
 	array( 'Design & Shop Drawings', 'Detailed drawings, 3D visuals and material samples, with equipment cut-outs and service routes confirmed before production.', 'Week 03 – 04' ),
-	array( 'Workshop Production', 'CNC, metal and stone fabrication in our own workshops, followed by pre-assembly and quality checks before anything ships.', 'Week 05 – 10' ),
+	array( 'Manufacture & Install', 'Furniture is made to your measurements, pre-assembled and quality-checked before installation.', 'Week 05 – 10' ),
 	array( 'Installation & Handover', 'Installed by the team that built it, scheduled around your fit-out and opening date, with final adjustments and care instructions at handover.', 'Week 11 – 12' ),
 );
 
@@ -628,8 +628,8 @@ foreach ( $mp_steps as $i => $step ) {
  * 6. Trust strip facts (#trust)
  * ========================================================================== */
 $mp_trust = array(
-	array( '18 Years', 'Joinery & shopfitting experience' ),
-	array( 'In-House Workshops', 'CNC wood, metal & stone under one roof' ),
+	array( '14 Years', 'Furniture & interior fit-out experience' ),
+	array( 'Full-Service', 'Survey, design, manufacture and install by one team.' ),
 	array( 'Built for Service', 'Heat-, scratch- & moisture-resistant surfaces' ),
 	array( 'Out-of-Hours Install', 'Minimal downtime for your opening date' ),
 );
@@ -679,7 +679,7 @@ foreach ( $mp_testimonials as $i => $quote ) {
  * ========================================================================== */
 $mp_settings = array(
 	'hero_headline'    => 'Custom furniture for venues that never stop working.',
-	'hero_sub'         => 'Bars, counters, seating and shopfit joinery for cafés, restaurants and retail brands. Designed, built and installed by one team in Tallinn.',
+	'hero_sub'         => 'Bars, counters, seating and commercial interiors for cafés, restaurants and retail brands. Designed, built and installed by one team in Tallinn.',
 	'hero_cta1_label'  => 'Request a Quote',
 	'hero_cta1_href'   => '#consultation',
 	'hero_cta2_label'  => 'See Commercial Projects',

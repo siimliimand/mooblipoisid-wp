@@ -61,6 +61,137 @@ function mooblipoisid_translate_footer_html_mod( $value ) {
 add_filter( 'theme_mod_footer_html_content', 'mooblipoisid_translate_footer_html_mod', 10, 1 );
 
 /**
+ * Translate the Kadence header button label (stored in the `header_button_label`
+ * theme mod) through the theme's gettext domain, per language. The label is a
+ * single stored string (e.g. the Estonian "Küsi pakkumist"), so it is resolved
+ * to the active language here rather than being stored per language.
+ *
+ * @param string $value Theme mod value.
+ * @return string Translated value.
+ */
+function mooblipoisid_translate_header_button_label( $value ) {
+	if ( ! is_string( $value ) || '' === $value ) {
+		return $value;
+	}
+	return __( $value, 'mooblipoisid-child' );
+}
+add_filter( 'theme_mod_header_button_label', 'mooblipoisid_translate_header_button_label', 10, 1 );
+
+/**
+ * Render a language switcher dropdown (with flags) for the site header.
+ *
+ * The switcher shows the current language (flag + name + caret); activating it
+ * reveals a dropdown listing every language (flag + name) linking to the same
+ * page in that language. Data comes from Polylang's raw switcher output so the
+ * per-language URLs point at the current page, not the home page.
+ *
+ * @return void
+ */
+function mooblipoisid_header_language_switcher() {
+	if ( ! function_exists( 'pll_the_languages' ) ) {
+		return;
+	}
+
+	$languages = pll_the_languages( array( 'raw' => 1 ) );
+	if ( empty( $languages ) || ! is_array( $languages ) ) {
+		return;
+	}
+
+	$current = null;
+	foreach ( $languages as $lang ) {
+		if ( ! empty( $lang['current_lang'] ) ) {
+			$current = $lang;
+			break;
+		}
+	}
+	if ( null === $current ) {
+		$current = reset( $languages );
+	}
+
+	$uid = 'mp-lang-switcher-' . wp_unique_id();
+	?>
+	<div class="mp-langswitch site-header-item site-header-focus-item" data-section="mooblipoisid_language_switcher">
+		<button type="button" class="mp-langswitch__toggle" id="<?php echo esc_attr( $uid ); ?>"
+			aria-haspopup="true" aria-expanded="false" aria-controls="<?php echo esc_attr( $uid ); ?>-menu"
+			data-mp-langswitch-toggle>
+			<img class="mp-langswitch__flag" src="<?php echo esc_url( $current['flag'] ); ?>" alt="<?php echo esc_attr( $current['name'] ); ?>" width="20" height="15">
+			<svg class="mp-langswitch__caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+		</button>
+		<ul class="mp-langswitch__menu" id="<?php echo esc_attr( $uid ); ?>-menu" role="menu" aria-labelledby="<?php echo esc_attr( $uid ); ?>" hidden>
+			<?php foreach ( $languages as $lang ) : ?>
+				<?php $is_current = ! empty( $lang['current_lang'] ); ?>
+				<li class="mp-langswitch__item" role="none">
+					<a class="mp-langswitch__link<?php echo $is_current ? ' is-current' : ''; ?>" role="menuitem"
+						href="<?php echo esc_url( $lang['url'] ); ?>"
+						<?php if ( $is_current ) : ?>aria-current="true"<?php endif; ?>
+						hreflang="<?php echo esc_attr( $lang['slug'] ); ?>" lang="<?php echo esc_attr( $lang['locale'] ); ?>">
+						<img class="mp-langswitch__flag" src="<?php echo esc_url( $lang['flag'] ); ?>" alt="<?php echo esc_attr( $lang['name'] ); ?>" width="20" height="15">
+					</a>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+	</div>
+	<?php
+}
+add_action( 'kadence_header_button', 'mooblipoisid_header_language_switcher', 20 );
+
+/**
+ * Front-end assets (and the tiny toggle script) for the header language switcher.
+ *
+ * @return void
+ */
+function mooblipoisid_language_switcher_assets() {
+	wp_register_script(
+		'mooblipoisid-langswitch',
+		'',
+		array(),
+		wp_get_theme( 'mooblipoisid-child' )->get( 'Version' ),
+		true
+	);
+	wp_enqueue_script( 'mooblipoisid-langswitch' );
+	wp_add_inline_script(
+		'mooblipoisid-langswitch',
+		<<<'JS'
+(function () {
+	function closeAll(except) {
+		document.querySelectorAll('[data-mp-langswitch-toggle]').forEach(function (btn) {
+			if (btn === except) { return; }
+			btn.setAttribute('aria-expanded', 'false');
+			var menu = document.getElementById(btn.getAttribute('aria-controls'));
+			if (menu) { menu.hidden = true; }
+		});
+	}
+	function init(btn) {
+		var menu = document.getElementById(btn.getAttribute('aria-controls'));
+		if (!menu) { return; }
+		btn.addEventListener('click', function (e) {
+			e.stopPropagation();
+			var open = btn.getAttribute('aria-expanded') === 'true';
+			closeAll(btn);
+			btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+			menu.hidden = open;
+		});
+		menu.addEventListener('click', function (e) { e.stopPropagation(); });
+	}
+	function boot() {
+		document.querySelectorAll('[data-mp-langswitch-toggle]').forEach(init);
+		document.addEventListener('click', function () { closeAll(null); });
+		document.addEventListener('keydown', function (e) {
+			if (e.key === 'Escape') { closeAll(null); }
+		});
+	}
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', boot);
+	} else {
+		boot();
+	}
+})();
+JS
+	);
+}
+add_action( 'wp_enqueue_scripts', 'mooblipoisid_language_switcher_assets' );
+
+/**
  * Homepage content model: post types, taxonomies, entry details and the
  * Homepage Settings screen. Kept in its own file so functions.php stays
  * focused on the front-end behaviour.

@@ -48,10 +48,10 @@ $mp_capability_index = 0;
     <div class="mp-section-head">
       <div>
         <span class="mp-eyebrow"><?php esc_html_e( 'Võimekused', 'mooblipoisid-child' ); ?></span>
-        <h2 class="mp-headline-lg"><?php esc_html_e( 'Üks töökoda. Iga materjal, mida teie koht vajab.', 'mooblipoisid-child' ); ?></h2>
+        <h2 class="mp-headline-lg"><?php esc_html_e( 'Üks partner. Kogu teie ruumi sisustus.', 'mooblipoisid-child' ); ?></h2>
       </div>
       <div class="mp-section-head__intro">
-        <p class="mp-body"><?php esc_html_e( 'Baar ei ole harva ainult puit. Kuna puit, metall ja kiv valmistatakse kõik meie enda töökodades, saabuvad osad viimistletuna, omavahel sobivatena ja paigaldusvalmisena, ilma tarnijate vahel jooksmiseta.', 'mooblipoisid-child' ); ?></p>
+        <p class="mp-body"><?php esc_html_e( 'Baar ei ole harva ainult puit. Kuna mööbel ja sisustuselemendid valmistatakse meie enda töökojas, saabuvad osad viimistletuna ja paigaldusvalmisena, ilma tarnijate vahel jooksmiseta.', 'mooblipoisid-child' ); ?></p>
       </div>
     </div>
     <div class="mp-caps">

@@ -1875,3 +1875,99 @@ body {
 .mp-section > .mp-container {
 	padding-inline: 0;
 }
+
+/* ==========================================================================
+   16. Header language switcher (flag dropdown)
+   ========================================================================== */
+.mp-langswitch {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	margin-left: 0.75rem;
+	font-family: inherit;
+}
+
+.mp-langswitch__toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.55rem 0.75rem;
+	background: transparent;
+	color: var(--mp-on-surface);
+	border: 1px solid var(--mp-outline-variant);
+	border-radius: 9999px;
+	font: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1;
+	letter-spacing: 0.01em;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.mp-langswitch__toggle:hover,
+.mp-langswitch__toggle[aria-expanded="true"] {
+	background: var(--mp-surface-container);
+	border-color: var(--mp-outline);
+}
+
+.mp-langswitch__flag {
+	width: 20px;
+	height: 15px;
+	object-fit: cover;
+	border-radius: 2px;
+	box-shadow: 0 0 0 1px rgba(27, 28, 26, 0.08);
+	flex: none;
+}
+
+.mp-langswitch__caret {
+	flex: none;
+	transition: transform 0.15s ease;
+}
+
+.mp-langswitch__toggle[aria-expanded="true"] .mp-langswitch__caret {
+	transform: rotate(180deg);
+}
+
+.mp-langswitch__menu {
+	position: absolute;
+	top: calc(100% + 0.5rem);
+	right: 0;
+	z-index: 100;
+	min-width: auto;
+	margin: 0;
+	padding: 0.35rem;
+	list-style: none;
+	background: var(--mp-surface-lowest);
+	border: 1px solid var(--mp-outline-variant);
+	border-radius: var(--mp-radius);
+	box-shadow: 0 12px 28px rgba(27, 28, 26, 0.16);
+}
+
+.mp-langswitch__link {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.5rem 0.6rem;
+	color: var(--mp-on-surface);
+	text-decoration: none;
+	border-radius: var(--mp-radius);
+	white-space: nowrap;
+	transition: background-color 0.12s ease;
+}
+
+.mp-langswitch__link:hover {
+	background: var(--mp-surface-container);
+}
+
+.mp-langswitch__link.is-current .mp-langswitch__flag {
+	box-shadow: 0 0 0 2px var(--mp-primary);
+}
+
+/* Mobile: hide the desktop switcher; Kadence shows the mobile header row */
+@media (max-width: 1023.98px) {
+	.mp-langswitch {
+		display: none;
+	}
+}

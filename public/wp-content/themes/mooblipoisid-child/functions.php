@@ -647,7 +647,8 @@ function mooblipoisid_do_shortcodes_in_html_blocks( $block_content, $block ) {
 add_filter( 'render_block', 'mooblipoisid_do_shortcodes_in_html_blocks', 10, 2 );
 
 /**
- * Handle the enquiry form submission: validate, email both managers, redirect.
+ * Handle the enquiry form submission: validate, store uploads on the server,
+ * email both managers (public links to the stored files), redirect.
  */
 function mooblipoisid_handle_enquiry() {
 	$redirect = wp_get_referer() ? wp_get_referer() : home_url( '/' );
@@ -686,12 +687,28 @@ function mooblipoisid_handle_enquiry() {
 		exit;
 	}
 
-	// Validate and stage uploaded attachments (PDF, DWG, PNG, JPEG up to 25MB each).
-	$attachments = array();
+	// Validate and store uploaded attachments (PDF, DWG, PNG, JPEG up to 25MB each).
+	// Files are kept in the uploads folder and linked from the email instead of
+	// being attached, so large drawings pass any mail channel's size limits.
+	$file_links  = array();
 	$allowed_ext = array( 'pdf', 'dwg', 'png', 'jpg', 'jpeg' );
 	$max_bytes   = 25 * 1024 * 1024;
 
 	if ( ! empty( $_FILES['mp_files']['name'][0] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		$uploads    = wp_upload_dir();
+		$target_dir = trailingslashit( $uploads['basedir'] ) . 'mp-enquiries';
+
+		if ( ! wp_mkdir_p( $target_dir ) ) {
+			wp_safe_redirect( add_query_arg( 'enquiry', 'error', $redirect . '#consultation' ) );
+			exit;
+		}
+
+		// An empty index keeps the folder from being listed on Apache.
+		$guard = $target_dir . '/index.html';
+		if ( ! file_exists( $guard ) ) {
+			@file_put_contents( $guard, '' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+
 		foreach ( $_FILES['mp_files']['name'] as $i => $file_name ) { // phpcs: ignore WordPress.Security.ValidatedSanitizedInput
 			if ( ! is_uploaded_file( $_FILES['mp_files']['tmp_name'][ $i ] ) ) { // phpcs: ignore WordPress.Security.ValidatedSanitizedInput
 				continue;
@@ -706,17 +723,16 @@ function mooblipoisid_handle_enquiry() {
 				exit;
 			}
 			/*
-			 * Stage the upload under its own sanitized name. wp_mail() uses
-			 * the file's basename as the attachment name, so wp_tempnam()
-			 * (which appends ".tmp") would make every attachment arrive as
-			 * ".tmp" regardless of its real type.
+			 * Store under a random token plus the sanitized original name: the
+			 * link stays unguessable but reads nicely for the recipient.
 			 */
-			$staged = get_temp_dir() . uniqid( 'mp-enquiry-' ) . '-' . sanitize_file_name( $file_name );
-			if ( ! @move_uploaded_file( $_FILES['mp_files']['tmp_name'][ $i ], $staged ) ) { // phpcs: ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$stored_name = gmdate( 'Ymd-His' ) . '-' . wp_generate_password( 12, false, false ) . '-' . sanitize_file_name( $file_name );
+			$stored_path = $target_dir . '/' . $stored_name;
+			if ( ! @move_uploaded_file( $_FILES['mp_files']['tmp_name'][ $i ], $stored_path ) ) { // phpcs: ignore WordPress.PHP.NoSilencedErrors.Discouraged
 				wp_safe_redirect( add_query_arg( 'enquiry', 'error', $redirect . '#consultation' ) );
 				exit;
 			}
-			$attachments[] = $staged;
+			$file_links[] = trailingslashit( $uploads['baseurl'] ) . 'mp-enquiries/' . $stored_name;
 		}
 	}
 
@@ -732,20 +748,80 @@ function mooblipoisid_handle_enquiry() {
 		'',
 		'Brief & dimensions:',
 		( $fields['brief'] ? $fields['brief'] : '—' ),
-		'',
-		'Reply to: ' . $fields['name'] . ' <' . $fields['email'] . '>',
 	);
+
+	if ( ! empty( $file_links ) ) {
+		$lines[] = '';
+		$lines[] = 'Files:';
+		foreach ( $file_links as $file_link ) {
+			$lines[] = '- ' . $file_link;
+		}
+	} else {
+		$lines[] = '';
+		$lines[] = 'Files: none';
+	}
+
+	$lines[] = '';
+	$lines[] = 'Reply to: ' . $fields['name'] . ' <' . $fields['email'] . '>';
+
 	$subject = sprintf( '[mooblipoisid.ee] %s — %s', $fields['project_type'], $fields['company'] );
 	$headers = array( 'Reply-To: ' . $fields['name'] . ' <' . $fields['email'] . '>' );
 
-	$sent = wp_mail( mooblipoisid_enquiry_recipients(), $subject, implode( "\n", $lines ), $headers, $attachments );
-
-	foreach ( $attachments as $attachment ) {
-		@unlink( $attachment ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-	}
+	$sent = wp_mail( mooblipoisid_enquiry_recipients(), $subject, implode( "\n", $lines ), $headers );
 
 	wp_safe_redirect( add_query_arg( 'enquiry', $sent ? 'sent' : 'error', $redirect . '#consultation' ) );
 	exit;
 }
 add_action( 'admin_post_mooblipoisid_enquiry', 'mooblipoisid_handle_enquiry' );
 add_action( 'admin_post_nopriv_mooblipoisid_enquiry', 'mooblipoisid_handle_enquiry' );
+
+/**
+ * How long stored enquiry files are kept before the daily cleanup deletes
+ * them. Default 30 days (matches the privacy policy's retention guidance).
+ *
+ * @return int Retention in days.
+ */
+function mooblipoisid_enquiry_retention_days() {
+	return (int) apply_filters( 'mooblipoisid_enquiry_retention_days', 30 );
+}
+
+/**
+ * Delete stored enquiry uploads past the retention period. The index.html
+ * folder guard is preserved.
+ */
+function mooblipoisid_enquiry_cleanup_old_files() {
+	$uploads    = wp_upload_dir();
+	$target_dir = trailingslashit( $uploads['basedir'] ) . 'mp-enquiries';
+
+	if ( ! is_dir( $target_dir ) ) {
+		return;
+	}
+
+	$max_age = mooblipoisid_enquiry_retention_days() * DAY_IN_SECONDS;
+	$files   = glob( trailingslashit( $target_dir ) . '*' );
+
+	if ( ! is_array( $files ) ) {
+		return;
+	}
+
+	foreach ( $files as $file ) {
+		if ( ! is_file( $file ) || 'index.html' === wp_basename( $file ) ) {
+			continue;
+		}
+
+		if ( ( time() - (int) filemtime( $file ) ) > $max_age ) {
+			wp_delete_file( $file );
+		}
+	}
+}
+add_action( 'mooblipoisid_enquiry_cleanup', 'mooblipoisid_enquiry_cleanup_old_files' );
+
+/**
+ * Schedule the daily cleanup (WP-Cron fires on site traffic).
+ */
+function mooblipoisid_schedule_enquiry_cleanup() {
+	if ( ! wp_next_scheduled( 'mooblipoisid_enquiry_cleanup' ) ) {
+		wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'mooblipoisid_enquiry_cleanup' );
+	}
+}
+add_action( 'init', 'mooblipoisid_schedule_enquiry_cleanup' );

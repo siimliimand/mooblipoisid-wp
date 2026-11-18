@@ -40,11 +40,19 @@ function mooblipoisid_cpaas_endpoint() {
 
 /**
  * Configured sender API key. Empty means "not wired up yet" → PHP mail() fallback.
+ * Accepts the raw token or the full header value ("Zoho-enczapikey …") pasted
+ * straight from the console — the prefix is normalized away here.
  *
  * @return string
  */
 function mooblipoisid_cpaas_api_key() {
-	return defined( 'MOOBLIPOISID_CPAAS_API_KEY' ) ? (string) MOOBLIPOISID_CPAAS_API_KEY : '';
+	$key = defined( 'MOOBLIPOISID_CPAAS_API_KEY' ) ? trim( (string) MOOBLIPOISID_CPAAS_API_KEY ) : '';
+
+	if ( 0 === stripos( $key, 'Zoho-enczapikey ' ) ) {
+		$key = trim( substr( $key, strlen( 'Zoho-enczapikey ' ) ) );
+	}
+
+	return $key;
 }
 
 /**

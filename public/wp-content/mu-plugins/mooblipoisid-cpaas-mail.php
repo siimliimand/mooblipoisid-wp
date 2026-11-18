@@ -146,7 +146,8 @@ function mooblipoisid_cpaas_parse_recipients( $value ) {
 }
 
 /**
- * Turn one [address, name] pair into CPaaS's nested object shape.
+ * Turn one [address, name] pair into CPaaS's nested object shape (to/cc/bcc
+ * wrap it in `email_address`; `from` and `reply_to` use it directly).
  *
  * @param array $pair [address, name].
  * @return array
@@ -159,6 +160,17 @@ function mooblipoisid_cpaas_address_object( $pair ) {
 	}
 
 	return $object;
+}
+
+/**
+ * Recipient object for to/cc/bcc: the address object nested under
+ * `email_address` per the CPaaS API schema.
+ *
+ * @param array $pair [address, name].
+ * @return array
+ */
+function mooblipoisid_cpaas_recipient_object( $pair ) {
+	return array( 'email_address' => mooblipoisid_cpaas_address_object( $pair ) );
 }
 
 /**
@@ -274,7 +286,7 @@ function mooblipoisid_cpaas_build_payload( $to, $subject, $message, $headers = '
 
 	$payload = array(
 		'from'    => mooblipoisid_cpaas_address_object( $from_pair ),
-		'to'      => array_map( 'mooblipoisid_cpaas_address_object', $recipients ),
+		'to'      => array_map( 'mooblipoisid_cpaas_recipient_object', $recipients ),
 		'subject' => (string) $subject,
 	);
 
@@ -288,7 +300,9 @@ function mooblipoisid_cpaas_build_payload( $to, $subject, $message, $headers = '
 		if ( isset( $headers[ $header ] ) ) {
 			$parsed = mooblipoisid_cpaas_parse_recipients( $headers[ $header ] );
 			if ( ! empty( $parsed ) ) {
-				$payload[ $field ] = array_map( 'mooblipoisid_cpaas_address_object', $parsed );
+				// reply_to is flat; cc/bcc are nested under email_address.
+				$wrapper           = 'reply_to' === $field ? 'mooblipoisid_cpaas_address_object' : 'mooblipoisid_cpaas_recipient_object';
+				$payload[ $field ] = array_map( $wrapper, $parsed );
 			}
 		}
 	}

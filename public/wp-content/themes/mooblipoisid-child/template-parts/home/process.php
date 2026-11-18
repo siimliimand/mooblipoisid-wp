@@ -35,16 +35,17 @@ if ( ! $mp_step_query->have_posts() ) {
 }
 
 $mp_step_index = 0;
+$mp_settings   = function_exists( 'mooblipoisid_get_homepage_settings' ) ? mooblipoisid_get_homepage_settings() : array();
 ?>
 <section class="mp-section mp-section--surface" id="process">
   <div class="mp-container">
     <div class="mp-section-head">
       <div>
-        <span class="mp-eyebrow"><?php esc_html_e( 'Protsess', 'mooblipoisid-child' ); ?></span>
-        <h2 class="mp-headline-lg"><?php esc_html_e( 'Briefist avamispäevani', 'mooblipoisid-child' ); ?></h2>
+        <span class="mp-eyebrow"><?php echo esc_html( $mp_settings['process_eyebrow'] ?? '' ); ?></span>
+        <h2 class="mp-headline-lg"><?php echo esc_html( $mp_settings['process_title'] ?? '' ); ?></h2>
       </div>
       <div class="mp-section-head__intro">
-        <p class="mp-body"><?php esc_html_e( 'Töötame teie siseviimistluse graafiku järgi, koordineerime teie arhitekti ja töövõtjatega ning paigaldame teie avamiskuupäeva ümber.', 'mooblipoisid-child' ); ?></p>
+        <p class="mp-body"><?php echo esc_html( $mp_settings['process_intro'] ?? '' ); ?></p>
       </div>
     </div>
     <div class="mp-process">

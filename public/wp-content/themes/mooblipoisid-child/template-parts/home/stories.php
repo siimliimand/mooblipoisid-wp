@@ -33,13 +33,15 @@ if ( ! $mp_story_query->have_posts() ) {
 	wp_reset_postdata();
 	return;
 }
+
+$mp_settings = function_exists( 'mooblipoisid_get_homepage_settings' ) ? mooblipoisid_get_homepage_settings() : array();
 ?>
 <section class="mp-section mp-section--surface" id="stories">
   <div class="mp-container">
     <div class="mp-section-head">
       <div>
-        <span class="mp-eyebrow"><?php esc_html_e( 'Klientide lood', 'mooblipoisid-child' ); ?></span>
-        <h2 class="mp-headline-lg"><?php esc_html_e( 'Mida meie kliendid ütlevad', 'mooblipoisid-child' ); ?></h2>
+        <span class="mp-eyebrow"><?php echo esc_html( $mp_settings['stories_eyebrow'] ?? '' ); ?></span>
+        <h2 class="mp-headline-lg"><?php echo esc_html( $mp_settings['stories_title'] ?? '' ); ?></h2>
       </div>
     </div>
     <div class="mp-testimonials">

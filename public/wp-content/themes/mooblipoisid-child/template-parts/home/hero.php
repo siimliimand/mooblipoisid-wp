@@ -16,7 +16,7 @@ $mp_hero_image     = isset( $mp_settings['hero_image'] ) ? (string) $mp_settings
 $mp_hero_image_alt = isset( $mp_settings['hero_image_alt'] ) ? (string) $mp_settings['hero_image_alt'] : '';
 ?>
 <section class="mp-hero">
-  <img class="mp-hero__img" src="<?php echo esc_url( $mp_hero_image ); ?>" alt="<?php echo esc_attr( $mp_hero_image_alt ); ?>">
+  <img class="mp-hero__img" src="<?php echo esc_url( mooblipoisid_image_src( $mp_hero_image, 'full' ) ); ?>" alt="<?php echo esc_attr( $mp_hero_image_alt ); ?>" fetchpriority="high" decoding="async">
   <div class="mp-hero__shade-top"></div>
   <div class="mp-hero__shade-side"></div>
   <div class="mp-hero__content">

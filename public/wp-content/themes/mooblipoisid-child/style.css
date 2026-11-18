@@ -316,8 +316,6 @@ body {
 	max-width: 1280px;
 	margin-left: auto;
 	margin-right: auto;
-	padding-left: var(--mp-margin);
-	padding-right: var(--mp-margin);
 }
 
 .mp-hero__title {
@@ -356,8 +354,22 @@ body {
    ========================================================================== */
 .mp-trust {
 	background: var(--mp-surface-lowest);
-	padding: var(--mp-space-md) 0;
+	padding: var(--mp-space-md) var(--mp-margin);
 	border-bottom: 1px solid var(--mp-surface-container);
+}
+
+@media (min-width: 768px) {
+	.mp-trust {
+		padding-left: var(--mp-margin-tablet);
+		padding-right: var(--mp-margin-tablet);
+	}
+}
+
+@media (min-width: 1024px) {
+	.mp-trust {
+		padding-left: var(--mp-margin-desktop);
+		padding-right: var(--mp-margin-desktop);
+	}
 }
 
 .mp-trust__grid {
@@ -418,16 +430,9 @@ body {
 	margin: 0.25rem 0 0;
 }
 
-@media (min-width: 768px) {
-	.mp-section-head {
-		flex-direction: row;
-		align-items: flex-end;
-		justify-content: space-between;
-	}
-
-	.mp-section-head__intro {
-		max-width: 448px;
-	}
+/* The intro sits under the heading, not beside it. */
+.mp-section-head__intro {
+	max-width: 40rem;
 }
 
 /* The Process head: stacked max-w-2xl block with no divider (per design). */
@@ -451,12 +456,14 @@ body {
 	display: grid;
 	grid-template-columns: 1fr;
 	gap: var(--mp-gutter);
+	align-items: stretch;
 }
 
 .mp-sector {
 	position: relative;
 	display: flex;
 	flex-direction: column;
+	height: 100%;
 	background: var(--mp-surface-low);
 	overflow: hidden;
 	text-decoration: none;
@@ -473,10 +480,6 @@ body {
 	height: 224px;
 	overflow: hidden;
 	background: var(--mp-surface-container);
-}
-
-.mp-sector--lead .mp-sector__media {
-	height: 440px;
 }
 
 .mp-sector__media img {
@@ -524,15 +527,12 @@ body {
 
 @media (min-width: 1024px) {
 	.mp-sectors {
-		grid-template-columns: repeat(12, 1fr);
+		grid-template-columns: repeat(3, 1fr);
 	}
 
-	.mp-sector--lead {
-		grid-column: span 7;
-	}
-
-	.mp-sector:not(.mp-sector--lead) {
-		grid-column: span 5;
+	/* All three cards are equal size: one third each, a single row. */
+	.mp-sector__media {
+		height: 280px;
 	}
 }
 
@@ -600,12 +600,14 @@ body {
 	display: grid;
 	grid-template-columns: 1fr;
 	gap: var(--mp-gutter);
+	align-items: stretch;
 }
 
 .mp-project {
 	position: relative;
 	display: flex;
 	flex-direction: column;
+	height: 100%;
 	background: var(--mp-surface-low);
 	overflow: hidden;
 }
@@ -615,10 +617,6 @@ body {
 	width: 100%;
 	height: 224px;
 	overflow: hidden;
-}
-
-.mp-project--lead .mp-project__media {
-	height: 440px;
 }
 
 .mp-project__media img {
@@ -650,6 +648,7 @@ body {
 
 .mp-project__body {
 	display: flex;
+	flex: 1;
 	flex-direction: column;
 	gap: var(--mp-space-xs);
 	padding: var(--mp-space-md);
@@ -662,6 +661,13 @@ body {
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
 	color: var(--mp-primary);
+}
+
+/* Grow to fill the card so the link stays pinned to the bottom of every card
+   in a row, keeping the card heights and link baselines aligned. */
+.mp-project__body > p.mp-body {
+	flex: 1;
+	margin: 0;
 }
 
 .mp-project__link {
@@ -680,11 +686,27 @@ body {
 
 @media (min-width: 1024px) {
 	.mp-projects {
-		grid-template-columns: repeat(2, 1fr);
+		grid-template-columns: repeat(6, 1fr);
 	}
 
-	.mp-project--lead {
-		grid-row: span 2;
+	/* The first two cards are the larger featured pair: 3 columns each in one
+	   row. The remaining cards are smaller: 2 columns each, 3 per row. */
+	.mp-project {
+		grid-column: span 2;
+	}
+
+	.mp-project:nth-child(1),
+	.mp-project:nth-child(2) {
+		grid-column: span 3;
+	}
+
+	.mp-project:nth-child(1) .mp-project__media,
+	.mp-project:nth-child(2) .mp-project__media {
+		height: 440px;
+	}
+
+	.mp-project:nth-child(n + 3) .mp-project__media {
+		height: 280px;
 	}
 }
 
@@ -1422,6 +1444,61 @@ body {
 	color: rgba(219, 218, 215, 0.6);
 }
 
+.mp-form__files {
+	list-style: none;
+	margin: 0.75rem 0 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.375rem;
+}
+
+.mp-form__files[hidden] {
+	display: none;
+}
+
+.mp-form__file {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.4rem 0.6rem;
+	background: rgba(228, 226, 223, 0.08);
+	border: 1px solid rgba(228, 226, 223, 0.25);
+	font-family: 'Plus Jakarta Sans', sans-serif;
+	font-size: 13px;
+	line-height: 20px;
+	color: var(--mp-inverse-primary);
+}
+
+.mp-form__file-name {
+	flex: 1 1 auto;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.mp-form__file-size {
+	flex: none;
+	font-size: 12px;
+	color: rgba(219, 218, 215, 0.6);
+}
+
+.mp-form__file-remove {
+	flex: none;
+	appearance: none;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	font-size: 16px;
+	line-height: 1;
+	padding: 0 0.25rem;
+	cursor: pointer;
+}
+
+.mp-form__file-remove:hover {
+	color: var(--mp-inverse-primary);
+}
+
 /* Submit */
 .mp-form__submit {
 	padding-top: var(--mp-space-xs);
@@ -1493,10 +1570,14 @@ body {
    15. Footer — matches design (Kadence widget shell + custom layout)
    ========================================================================== */
 
-/* Band background + vertical rhythm (design: pt-space-xl / pb-space-lg). */
+/* Band background: white — overrides the Kadence footer row/palette colors
+   (#colophon ID rule + .site-footer-row-container-inner row rules). */
+#colophon,
 .site-footer,
-.site-footer .site-footer-wrap {
-	background: var(--mp-surface-container-low);
+.site-footer .site-footer-wrap,
+.site-footer .site-top-footer-wrap .site-footer-row-container-inner,
+.site-footer .site-bottom-footer-wrap .site-footer-row-container-inner {
+	background: var(--mp-surface-lowest);
 	color: var(--mp-on-surface);
 }
 
@@ -1872,7 +1953,8 @@ body {
 }
 
 /* Single gutter: sections already carry the prototype inline padding */
-.mp-section > .mp-container {
+.mp-section > .mp-container,
+.mp-trust > .mp-container {
 	padding-inline: 0;
 }
 
@@ -1970,4 +2052,45 @@ body {
 	.mp-langswitch {
 		display: none;
 	}
+}
+
+/* ==========================================================================
+   17. Back-to-top button (fixed, bottom-right)
+   ========================================================================== */
+.mp-backtotop {
+	position: fixed;
+	right: var(--mp-margin);
+	bottom: var(--mp-margin);
+	z-index: 90;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	color: var(--mp-on-primary);
+	background: var(--mp-primary);
+	border: none;
+	border-radius: var(--mp-radius-full, 9999px);
+	cursor: pointer;
+	box-shadow: 0 8px 24px rgba(27, 28, 26, 0.22);
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(8px);
+	transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease, background-color 0.15s ease;
+}
+
+.mp-backtotop.is-visible {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+}
+
+.mp-backtotop:hover {
+	background: var(--mp-primary-fixed-dim, var(--mp-primary));
+}
+
+.mp-backtotop:focus-visible {
+	outline: 2px solid var(--mp-primary);
+	outline-offset: 3px;
 }

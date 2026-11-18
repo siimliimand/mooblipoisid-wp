@@ -42,7 +42,7 @@ $mp_contact_icon_place = '<svg width="20" height="20" viewBox="0 0 24 24" fill="
         <div class="mp-contact-row">
           <div class="mp-contact-row__icon"><?php echo $mp_contact_icon_phone; // phpcs:ignore WordPress.Security.EscapeOutput -- static inline SVG icon ?></div>
           <div>
-            <p class="mp-contact-row__role"><?php esc_html_e( 'Tootmisjuht — Andre Merila', 'mooblipoisid-child' ); ?></p>
+            <p class="mp-contact-row__role"><?php echo esc_html( $mp_settings['consult_contact1_role'] ?? '' ); ?></p>
             <p class="mp-contact-row__primary"><a href="tel:+3725153229">+372 515 3229</a></p>
             <p class="mp-contact-row__secondary"><a href="mailto:andre@mooblipoisid.ee">andre@mooblipoisid.ee</a></p>
           </div>
@@ -50,7 +50,7 @@ $mp_contact_icon_place = '<svg width="20" height="20" viewBox="0 0 24 24" fill="
         <div class="mp-contact-row">
           <div class="mp-contact-row__icon"><?php echo $mp_contact_icon_mail; // phpcs:ignore WordPress.Security.EscapeOutput -- static inline SVG icon ?></div>
           <div>
-            <p class="mp-contact-row__role"><?php esc_html_e( 'Projektijuht — Marilyn Salu', 'mooblipoisid-child' ); ?></p>
+            <p class="mp-contact-row__role"><?php echo esc_html( $mp_settings['consult_contact2_role'] ?? '' ); ?></p>
             <p class="mp-contact-row__primary"><a href="mailto:marilyn@mooblipoisid.ee">marilyn@mooblipoisid.ee</a></p>
             <p class="mp-contact-row__secondary"><a href="tel:+37255910872">+372 55 910 872</a></p>
           </div>
@@ -58,8 +58,8 @@ $mp_contact_icon_place = '<svg width="20" height="20" viewBox="0 0 24 24" fill="
         <div class="mp-contact-row">
           <div class="mp-contact-row__icon"><?php echo $mp_contact_icon_place; // phpcs:ignore WordPress.Security.EscapeOutput -- static inline SVG icon ?></div>
           <div>
-            <p class="mp-contact-row__role"><?php esc_html_e( 'Töökoja ja näidiste külastus', 'mooblipoisid-child' ); ?></p>
-            <p class="mp-contact-row__secondary"><?php esc_html_e( 'Tutvuge materjalide, viimistluste ja töös olevate projektidega meie töökojas aadressil Võidu 75, Tallinn, kokkuleppel.', 'mooblipoisid-child' ); ?></p>
+            <p class="mp-contact-row__role"><?php echo esc_html( $mp_settings['consult_visit_title'] ?? '' ); ?></p>
+            <p class="mp-contact-row__secondary"><?php echo esc_html( $mp_settings['consult_visit_text'] ?? '' ); ?></p>
           </div>
         </div>
       </div>

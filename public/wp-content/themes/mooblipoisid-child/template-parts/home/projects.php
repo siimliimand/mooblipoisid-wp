@@ -6,7 +6,7 @@
  * Materials & Features terms are the card tags, the `mp_location_type` entry
  * detail is the small meta line, the title is the card name and the short
  * description is the card text. Entries render in menu_order ASC (the post date
- * breaks ties), so the first entry is the lead card (.mp-project--lead). The
+ * breaks ties), so the first entry renders first in the grid. The
  * `lang` query var keeps the cards in the active language, and adds the site
  * language as a fallback while a language has no projects of its own yet.
  *
@@ -35,14 +35,15 @@ if ( ! $mp_project_query->have_posts() ) {
 	return;
 }
 
-$mp_project_index = 0;
+$mp_settings = function_exists( 'mooblipoisid_get_homepage_settings' ) ? mooblipoisid_get_homepage_settings() : array();
+
 ?>
 <section class="mp-section mp-section--surface" id="projects">
   <div class="mp-container">
     <div class="mp-section-head">
       <div>
-        <span class="mp-eyebrow"><?php esc_html_e( 'Valitud tööd', 'mooblipoisid-child' ); ?></span>
-        <h2 class="mp-headline-lg"><?php esc_html_e( 'Hiljutised äri- ja jaemüügiprojektid', 'mooblipoisid-child' ); ?></h2>
+        <span class="mp-eyebrow"><?php echo esc_html( $mp_settings['projects_eyebrow'] ?? '' ); ?></span>
+        <h2 class="mp-headline-lg"><?php echo esc_html( $mp_settings['projects_title'] ?? '' ); ?></h2>
       </div>
     </div>
     <div class="mp-projects">
@@ -77,10 +78,17 @@ $mp_project_index = 0;
         }
         $mp_project_tags = wp_list_sort( $mp_project_tags, array( 'mp_sort_order' => 'ASC', 'name' => 'ASC' ) );
         ?>
-      <article class="mp-project<?php echo 0 === $mp_project_index ? ' mp-project--lead' : ''; ?>">
+      <article class="mp-project">
         <div class="mp-project__media">
           <?php if ( has_post_thumbnail() ) : ?>
-          <img src="<?php echo esc_url( get_the_post_thumbnail_url( get_the_ID(), 'full' ) ); ?>" alt="<?php echo esc_attr( get_post_meta( (int) get_post_thumbnail_id( get_the_ID() ), '_wp_attachment_image_alt', true ) ); ?>">
+          <?php
+          $mp_project_thumb_id  = (int) get_post_thumbnail_id( get_the_ID() );
+          $mp_project_thumb_src = get_the_post_thumbnail_url( get_the_ID(), 'large' );
+          if ( ! $mp_project_thumb_src ) {
+              $mp_project_thumb_src = get_the_post_thumbnail_url( get_the_ID(), 'full' );
+          }
+          ?>
+          <img src="<?php echo esc_url( $mp_project_thumb_src ); ?>" alt="<?php echo esc_attr( get_post_meta( $mp_project_thumb_id, '_wp_attachment_image_alt', true ) ); ?>" loading="lazy" decoding="async">
           <?php endif; ?>
           <?php if ( $mp_project_tags ) : ?>
           <div class="mp-project__tags">
@@ -94,10 +102,9 @@ $mp_project_index = 0;
           <span class="mp-project__meta"><?php echo esc_html( get_post_meta( get_the_ID(), 'mp_location_type', true ) ); ?></span>
           <h3 class="mp-headline-md"><?php echo esc_html( get_the_title() ); ?></h3>
           <p class="mp-body"><?php echo esc_html( get_the_excerpt() ); ?></p>
-          <a class="mp-project__link" href="#consultation"><?php esc_html_e( 'Arutage sarnast projekti', 'mooblipoisid-child' ); ?></a>
+          <a class="mp-project__link" href="#consultation"><?php echo esc_html( $mp_settings['projects_card_link'] ?? '' ); ?></a>
         </div>
       </article>
-        <?php $mp_project_index++; ?>
       <?php endwhile; ?>
     </div>
   </div>

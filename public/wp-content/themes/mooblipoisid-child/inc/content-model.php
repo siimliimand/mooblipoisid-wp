@@ -633,8 +633,8 @@ function mooblipoisid_sector_add_form_fields() {
 	?>
 	<div class="form-field">
 		<label for="sector_image"><?php esc_html_e( 'Sector Image', 'mooblipoisid-child' ); ?></label>
-		<input type="text" name="sector_image" id="sector_image" value="" placeholder="https://…" />
-		<p class="description"><?php esc_html_e( 'Paste the image address (URL) of the photo shown on this sector card. Upload the photo under Media first, then copy its address.', 'mooblipoisid-child' ); ?></p>
+		<?php mooblipoisid_render_media_picker_field( 'sector_image', 'sector_image', '' ); ?>
+		<p class="description"><?php esc_html_e( 'The photo shown on this sector card. Pick it from the Media Library.', 'mooblipoisid-child' ); ?></p>
 	</div>
 	<div class="form-field">
 		<label for="sector_order"><?php esc_html_e( 'Sort Order', 'mooblipoisid-child' ); ?></label>
@@ -657,8 +657,8 @@ function mooblipoisid_sector_edit_form_fields( $term ) {
 	<tr class="form-field">
 		<th scope="row"><label for="sector_image"><?php esc_html_e( 'Sector Image', 'mooblipoisid-child' ); ?></label></th>
 		<td>
-			<input type="text" name="sector_image" id="sector_image" value="<?php echo esc_attr( $image ); ?>" placeholder="https://…" />
-			<p class="description"><?php esc_html_e( 'Paste the image address (URL) of the photo shown on this sector card. Upload the photo under Media first, then copy its address.', 'mooblipoisid-child' ); ?></p>
+			<?php mooblipoisid_render_media_picker_field( 'sector_image', 'sector_image', $image ); ?>
+			<p class="description"><?php esc_html_e( 'The photo shown on this sector card. Pick it from the Media Library.', 'mooblipoisid-child' ); ?></p>
 		</td>
 	</tr>
 	<tr class="form-field">
@@ -741,10 +741,103 @@ function mooblipoisid_homepage_settings_defaults() {
 		'ethos_eyebrow'    => __( 'Ethos & Provenance', 'mooblipoisid-child' ),
 		'ethos_quote'      => '“Furniture for public use should look beautiful and outlast the lease.”',
 		'ethos_body'       => __( 'A bar or a shop floor takes more punishment in a month than a home does in a year. We build commercial furniture with solid timber and multi-ply birch, joined properly, finished in hard-wearing surfaces and designed so that worn parts can be repaired rather than replaced.', 'mooblipoisid-child' ),
+		'ethos_image'      => 'wp-content/uploads/2026/11/mp-3.jpg',
+		'ethos_image_alt'  => __( 'Meistrikoda Mööblipoisid töökojas (näidisfoto, ootab pärisfotograafiat)', 'mooblipoisid-child' ),
 		// Consultation band.
 		'consult_eyebrow'  => __( 'Start a Dialogue', 'mooblipoisid-child' ),
 		'consult_headline' => __( 'Let’s plan your venue or store.', 'mooblipoisid-child' ),
 		'consult_intro'    => __( 'Send us your floor plans, architect drawings or concept boards. We respond with initial feedback and a budget direction within 48 hours.', 'mooblipoisid-child' ),
+
+		/*
+		 * Section heads and fixed copy. The Estonian strings below are the
+		 * source copy (the .po files used to carry these; they now live here so
+		 * every language is editable on this screen).
+		 */
+		// Sectors ("Who We Build For").
+		'sectors_eyebrow'           => 'Kellele me ehitame',
+		'sectors_title'             => 'Mööbel äripindade sisekujunduseks',
+		'sectors_intro'             => 'Iga koht on erinev, kuid nõudmised on samad: pikad lahtiolekuajad, pidev kasutus ja bränd, mis peab juba esimesest päevast õige välja nägema.',
+		'sector_title_hospitality'  => 'Kohvikud, baarid ja restoranid',
+		'sector_title_retail'       => 'Jaemüük ja kaubanduslik sisekujundus',
+		'sector_title_private'      => 'Eraköögid',
+		'sector_alt_hospitality'    => 'Kohviku ja baari interjöör pika puidust letiga',
+		'sector_alt_retail'         => 'Kaupluse vitriinriiulid ja kassalauk',
+		'sector_alt_private'        => 'Erilahendusega tammepuidust köök',
+		'sectors_link_hospitality'  => 'Vaata toitlustusvalikut',
+		'sectors_link_retail'       => 'Vaata jaemüügivalikut',
+		'sectors_link_private'      => 'Küsi pakkumist',
+		// Ranges ("What We Make").
+		'ranges_eyebrow'            => 'Mida me valmistame',
+		'ranges_title'              => 'Täielik äriklassi valik',
+		'ranges_intro'              => 'Valmistatud teie jooniste järgi või koostöös teie arhitektiga ning toodetud täieliku paketina, nii et kõik sobib omavahel kokku paigalduspäeval.',
+		'ranges_col_hospitality'    => 'Kohvikud, baarid ja restoranid',
+		'ranges_col_retail'         => 'Jaekauplused',
+		// Projects ("Selected Commissions").
+		'projects_eyebrow'          => 'Valitud tööd',
+		'projects_title'            => 'Hiljutised äri- ja jaemüügiprojektid',
+		'projects_card_link'        => 'Arutage sarnast projekti',
+		// Capabilities.
+		'caps_eyebrow'              => 'Võimekused',
+		'caps_title'                => 'Üks partner. Kogu teie ruumi sisustus.',
+		'caps_intro'                => 'Baar ei ole harva ainult puit. Kuna mööbel ja sisustuselemendid valmistatakse meie enda töökojas, saabuvad osad viimistletuna ja paigaldusvalmisena, ilma tarnijate vahel jooksmiseta.',
+		// Process.
+		'process_eyebrow'           => 'Protsess',
+		'process_title'             => 'Briefist avamispäevani',
+		'process_intro'             => 'Töötame teie siseviimistluse graafiku järgi, koordineerime teie arhitekti ja töövõtjatega ning paigaldame teie avamiskuupäeva ümber.',
+		// Stories (testimonials).
+		'stories_eyebrow'           => 'Klientide lood',
+		'stories_title'             => 'Mida meie kliendid ütlevad',
+		// Ethos fixed copy (badge + the two points under the quote).
+		'ethos_badge_title'         => 'Oma tootmine',
+		'ethos_badge_text'          => 'Mööbel ja sisustus ühe katuse all Tallinnas',
+		'ethos_point1_title'        => 'Valmis kandmiseks',
+		'ethos_point1_text'         => 'Kuumus- ja kriipimiskindlad pealsed, tugevdatud liited ja äriklassi furnituur igapäevaseks kasutamiseks.',
+		'ethos_point2_title'        => 'Üks meeskond, algusest lõpuni',
+		'ethos_point2_text'         => 'Inimesed, kes teie esemed disainivad, valmistavad ja paigaldavad need ka ise, nii et üks kontaktisik vastutab kogu projekti eest.',
+		// Consultation contacts.
+		'consult_contact1_role'     => 'Tootmisjuht — Andre Merila',
+		'consult_contact2_role'     => 'Projektijuht — Marilyn Salu',
+		'consult_visit_title'       => 'Töökoja ja näidiste külastus',
+		'consult_visit_text'        => 'Tutvuge materjalide, viimistluste ja töös olevate projektidega meie töökojas aadressil Võidu 75, Tallinn, kokkuleppel.',
+		// Enquiry form.
+		'form_honeypot_label'       => 'Jätke see väli tühjaks',
+		'form_success'              => 'Aitäh. Teie päring on edastatud meie projektitiimile. Vaatame teie briefi üle 48 tunni jooksul.',
+		'form_error'                => 'Teie päringu saatmisel läks midagi valesti. Palun kirjutage otse aadressil marilyn@mooblipoisid.ee.',
+		'form_label_name'           => 'Täisnimi *',
+		'form_placeholder_name'     => 'nt Astrid Lindgren',
+		'form_label_company'        => 'Ettevõte / koht *',
+		'form_placeholder_company'  => 'nt Kohvik Nordlys OÜ',
+		'form_label_email'          => 'E-posti aadress *',
+		'form_label_phone'          => 'Telefoninumber',
+		'form_label_project_type'   => 'Projekti tüüp *',
+		'form_option_pick'          => 'Palun valige…',
+		'form_opt_type_cafe'        => 'Kohvik, baar või restoran',
+		'form_opt_type_retail'      => 'Jaemüügipood / kaubanduslik sisekujundus',
+		'form_opt_type_counters'    => 'Ainult letid või istekohad',
+		'form_opt_type_multi'       => 'Mitme objekti lahendus',
+		'form_opt_type_private'     => 'Eraköök',
+		'form_label_location'       => 'Koha / poe asukoht',
+		'form_placeholder_location' => 'nt Tallinn, Stockholm, Helsinki, Riia',
+		'form_label_brief'          => 'Brief ja mõõdud',
+		'form_placeholder_brief'    => 'Rääkige meile, mida vajate: nt 6 m baar espresso-jaama ja letialuste külmikutega, 40 istekohta pingiistmetel, bränditud kassalauk. Lisage eelarvevahemik või arhitekti andmed, kui need on olemas.',
+		'form_upload_label'         => 'Lisage plaanid, joonised või kontseptsioonitahvlid',
+		'form_upload_hint'          => 'PDF, DWG, PNG, JPEG kuni 25MB',
+		'form_file_remove'          => 'Eemalda fail',
+		'form_submit'               => 'Saada projektipäring',
+		// Header & buttons.
+		'header_cta_label'          => 'Küsi pakkumist',
+		'backtotop_label'           => 'Tagasi üles',
+		// Footer.
+		'footer_tagline'            => 'Erilahendusega mööbel ja sisustus kohvikutele, baaridele, restoranidele ja jaemüügile, lisaks eraköögid, valmistatud kestva põhjalikkusega.',
+		'footer_label_workshop'     => 'Töökoda',
+		'footer_label_discover'     => 'Avasta',
+		'footer_label_searches'     => 'Otsingud',
+		'footer_searches_text'      => 'Äripindade siseviimistluse, jaemüügikettide laiendamise ja arhitektide koostöö jaoks saatke oma brief otse meie projektide lauale.',
+		'footer_cta_label'          => 'Küsi pakkumist',
+		'footer_copyright'          => 'Kõik õigused kaitstud.',
+		'footer_legal_commission'   => 'Komisjonitingimused',
+		'footer_legal_materials'    => 'Materjalide päritolu',
+		'footer_legal_privacy'      => 'Privaatsuspoliitika',
 	);
 }
 
@@ -1222,8 +1315,8 @@ function mooblipoisid_homepage_settings_fields() {
 		),
 		'hero_image'       => array(
 			'label'       => __( 'Hero Image Address', 'mooblipoisid-child' ),
-			'description' => __( 'The image address (URL) of the large photo behind the hero. Upload the photo under Media first, then copy its address.', 'mooblipoisid-child' ),
-			'type'        => 'url',
+			'description' => __( 'The large photo behind the hero. Click “Select image” to upload or choose one from the media library, or paste an image address (URL).', 'mooblipoisid-child' ),
+			'type'        => 'image',
 			'section'     => 'hero',
 		),
 		'hero_image_alt'   => array(
@@ -1251,6 +1344,18 @@ function mooblipoisid_homepage_settings_fields() {
 			'type'        => 'textarea',
 			'section'     => 'ethos',
 		),
+		'ethos_image'      => array(
+			'label'       => __( 'Ethos Image Address', 'mooblipoisid-child' ),
+			'description' => __( 'The workshop photo in the dark band. Click “Select image” to upload or choose one from the media library, or paste an image address (URL).', 'mooblipoisid-child' ),
+			'type'        => 'image',
+			'section'     => 'ethos',
+		),
+		'ethos_image_alt'  => array(
+			'label'       => __( 'Ethos Image Description', 'mooblipoisid-child' ),
+			'description' => __( 'A short description of the workshop photo, used by screen readers and search engines.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'ethos',
+		),
 
 		'consult_eyebrow'  => array(
 			'label'       => __( 'Consultation Small Heading', 'mooblipoisid-child' ),
@@ -1270,6 +1375,450 @@ function mooblipoisid_homepage_settings_fields() {
 			'type'        => 'textarea',
 			'section'     => 'consult',
 		),
+
+		// "Who We Build For" section head + cards.
+		'sectors_eyebrow'          => array(
+			'label'       => __( 'Small Heading', 'mooblipoisid-child' ),
+			'description' => __( 'The small uppercase label above the section heading.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'sectors',
+		),
+		'sectors_title'            => array(
+			'label'       => __( 'Section Heading', 'mooblipoisid-child' ),
+			'description' => __( 'The big heading of the section.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'sectors',
+		),
+		'sectors_intro'            => array(
+			'label'       => __( 'Intro Text', 'mooblipoisid-child' ),
+			'description' => __( 'The paragraph under the heading.', 'mooblipoisid-child' ),
+			'type'        => 'textarea',
+			'section'     => 'sectors',
+		),
+		'sector_title_hospitality' => array(
+			'label'       => __( 'Card 1 (Cafés & Bars) Title', 'mooblipoisid-child' ),
+			'description' => __( 'The headline shown on the first sector card.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'sectors',
+		),
+		'sector_title_retail'      => array(
+			'label'       => __( 'Card 2 (Retail) Title', 'mooblipoisid-child' ),
+			'description' => __( 'The headline shown on the second sector card.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'sectors',
+		),
+		'sector_title_private'     => array(
+			'label'       => __( 'Card 3 (Private Dining) Title', 'mooblipoisid-child' ),
+			'description' => __( 'The headline shown on the third sector card.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'sectors',
+		),
+		'sector_alt_hospitality'   => array(
+			'label'       => __( 'Card 1 Photo Description', 'mooblipoisid-child' ),
+			'description' => __( 'A short description of the first card photo, used by screen readers.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'sectors',
+		),
+		'sector_alt_retail'        => array(
+			'label'       => __( 'Card 2 Photo Description', 'mooblipoisid-child' ),
+			'description' => __( 'A short description of the second card photo, used by screen readers.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'sectors',
+		),
+		'sector_alt_private'       => array(
+			'label'       => __( 'Card 3 Photo Description', 'mooblipoisid-child' ),
+			'description' => __( 'A short description of the third card photo, used by screen readers.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'sectors',
+		),
+		'sectors_link_hospitality' => array(
+			'label'       => __( 'Card 1 Link Text', 'mooblipoisid-child' ),
+			'description' => __( 'The link text at the bottom of the first card.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'sectors',
+		),
+		'sectors_link_retail'      => array(
+			'label'       => __( 'Card 2 Link Text', 'mooblipoisid-child' ),
+			'description' => __( 'The link text at the bottom of the second card.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'sectors',
+		),
+		'sectors_link_private'     => array(
+			'label'       => __( 'Card 3 Link Text', 'mooblipoisid-child' ),
+			'description' => __( 'The link text at the bottom of the third card.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'sectors',
+		),
+
+		// "What We Make" section.
+		'ranges_eyebrow'         => array(
+			'label'       => __( 'Small Heading', 'mooblipoisid-child' ),
+			'description' => __( 'The small uppercase label above the section heading.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'ranges',
+		),
+		'ranges_title'           => array(
+			'label'       => __( 'Section Heading', 'mooblipoisid-child' ),
+			'description' => __( 'The big heading of the section.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'ranges',
+		),
+		'ranges_intro'           => array(
+			'label'       => __( 'Intro Text', 'mooblipoisid-child' ),
+			'description' => __( 'The paragraph under the heading.', 'mooblipoisid-child' ),
+			'type'        => 'textarea',
+			'section'     => 'ranges',
+		),
+		'ranges_col_hospitality' => array(
+			'label'       => __( 'Left Column Title (Hospitality)', 'mooblipoisid-child' ),
+			'description' => __( 'The title of the first product-range column.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'ranges',
+		),
+		'ranges_col_retail'      => array(
+			'label'       => __( 'Right Column Title (Retail)', 'mooblipoisid-child' ),
+			'description' => __( 'The title of the second product-range column.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'ranges',
+		),
+
+		// "Selected Commissions" section.
+		'projects_eyebrow'   => array(
+			'label'       => __( 'Small Heading', 'mooblipoisid-child' ),
+			'description' => __( 'The small uppercase label above the section heading.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'projects',
+		),
+		'projects_title'     => array(
+			'label'       => __( 'Section Heading', 'mooblipoisid-child' ),
+			'description' => __( 'The big heading of the section.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'projects',
+		),
+		'projects_card_link' => array(
+			'label'       => __( 'Card Link Text', 'mooblipoisid-child' ),
+			'description' => __( 'The link text at the bottom of every project card.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'projects',
+		),
+
+		// Capabilities section.
+		'caps_eyebrow' => array(
+			'label'       => __( 'Small Heading', 'mooblipoisid-child' ),
+			'description' => __( 'The small uppercase label above the section heading.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'capabilities',
+		),
+		'caps_title'   => array(
+			'label'       => __( 'Section Heading', 'mooblipoisid-child' ),
+			'description' => __( 'The big heading of the section.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'capabilities',
+		),
+		'caps_intro'   => array(
+			'label'       => __( 'Intro Text', 'mooblipoisid-child' ),
+			'description' => __( 'The paragraph under the heading.', 'mooblipoisid-child' ),
+			'type'        => 'textarea',
+			'section'     => 'capabilities',
+		),
+
+		// Process section.
+		'process_eyebrow' => array(
+			'label'       => __( 'Small Heading', 'mooblipoisid-child' ),
+			'description' => __( 'The small uppercase label above the section heading.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'process',
+		),
+		'process_title'   => array(
+			'label'       => __( 'Section Heading', 'mooblipoisid-child' ),
+			'description' => __( 'The big heading of the section.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'process',
+		),
+		'process_intro'   => array(
+			'label'       => __( 'Intro Text', 'mooblipoisid-child' ),
+			'description' => __( 'The paragraph under the heading.', 'mooblipoisid-child' ),
+			'type'        => 'textarea',
+			'section'     => 'process',
+		),
+
+		// Stories section.
+		'stories_eyebrow' => array(
+			'label'       => __( 'Small Heading', 'mooblipoisid-child' ),
+			'description' => __( 'The small uppercase label above the section heading.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'stories',
+		),
+		'stories_title'   => array(
+			'label'       => __( 'Section Heading', 'mooblipoisid-child' ),
+			'description' => __( 'The big heading of the section.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'stories',
+		),
+
+		// Ethos fixed copy (badge + points).
+		'ethos_badge_title' => array(
+			'label'       => __( 'Badge Title', 'mooblipoisid-child' ),
+			'description' => __( 'The short label on the badge overlapping the workshop photo.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'ethos',
+		),
+		'ethos_badge_text'  => array(
+			'label'       => __( 'Badge Text', 'mooblipoisid-child' ),
+			'description' => __( 'The sentence under the badge title.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'ethos',
+		),
+		'ethos_point1_title' => array(
+			'label'       => __( 'Point 1 Title', 'mooblipoisid-child' ),
+			'description' => __( 'The heading of the first point under the quote (e.g. durability).', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'ethos',
+		),
+		'ethos_point1_text'  => array(
+			'label'       => __( 'Point 1 Text', 'mooblipoisid-child' ),
+			'description' => __( 'The sentence under the first point heading.', 'mooblipoisid-child' ),
+			'type'        => 'textarea',
+			'section'     => 'ethos',
+		),
+		'ethos_point2_title' => array(
+			'label'       => __( 'Point 2 Title', 'mooblipoisid-child' ),
+			'description' => __( 'The heading of the second point (e.g. one team).', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'ethos',
+		),
+		'ethos_point2_text'  => array(
+			'label'       => __( 'Point 2 Text', 'mooblipoisid-child' ),
+			'description' => __( 'The sentence under the second point heading.', 'mooblipoisid-child' ),
+			'type'        => 'textarea',
+			'section'     => 'ethos',
+		),
+
+		// Consultation contacts.
+		'consult_contact1_role' => array(
+			'label'       => __( 'Contact 1 Role (Production Manager)', 'mooblipoisid-child' ),
+			'description' => __( 'The role line above the first phone/e-mail contact.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'consult',
+		),
+		'consult_contact2_role' => array(
+			'label'       => __( 'Contact 2 Role (Project Manager)', 'mooblipoisid-child' ),
+			'description' => __( 'The role line above the second e-mail/phone contact.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'consult',
+		),
+		'consult_visit_title'   => array(
+			'label'       => __( 'Workshop Visit Title', 'mooblipoisid-child' ),
+			'description' => __( 'The heading of the workshop-visit contact row.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'consult',
+		),
+		'consult_visit_text'    => array(
+			'label'       => __( 'Workshop Visit Text', 'mooblipoisid-child' ),
+			'description' => __( 'The sentence about visiting the workshop.', 'mooblipoisid-child' ),
+			'type'        => 'textarea',
+			'section'     => 'consult',
+		),
+
+		// Enquiry form.
+		'form_honeypot_label'       => array(
+			'label'       => __( 'Spam-protection Label (hidden)', 'mooblipoisid-child' ),
+			'description' => __( 'Hidden from visitors; leave as is.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_success'              => array(
+			'label'       => __( 'Success Message', 'mooblipoisid-child' ),
+			'description' => __( 'Shown after the form is sent successfully.', 'mooblipoisid-child' ),
+			'type'        => 'textarea',
+			'section'     => 'form',
+		),
+		'form_error'                => array(
+			'label'       => __( 'Error Message', 'mooblipoisid-child' ),
+			'description' => __( 'Shown if sending fails.', 'mooblipoisid-child' ),
+			'type'        => 'textarea',
+			'section'     => 'form',
+		),
+		'form_label_name'           => array(
+			'label'       => __( 'Full Name Label', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_placeholder_name'     => array(
+			'label'       => __( 'Full Name Example Text', 'mooblipoisid-child' ),
+			'description' => __( 'The grey example text inside the field.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_label_company'        => array(
+			'label'       => __( 'Company / Venue Label', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_placeholder_company'  => array(
+			'label'       => __( 'Company / Venue Example Text', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_label_email'          => array(
+			'label'       => __( 'E-mail Label', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_label_phone'          => array(
+			'label'       => __( 'Phone Label', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_label_project_type'   => array(
+			'label'       => __( 'Project Type Label', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_option_pick'          => array(
+			'label'       => __( 'Dropdown “Please Choose” Text', 'mooblipoisid-child' ),
+			'description' => __( 'Shown in both dropdowns before a choice is made.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_opt_type_cafe'        => array(
+			'label'       => __( 'Project Type: Cafés & Bars', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_opt_type_retail'      => array(
+			'label'       => __( 'Project Type: Retail', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_opt_type_counters'    => array(
+			'label'       => __( 'Project Type: Counters or Seating Only', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_opt_type_multi'       => array(
+			'label'       => __( 'Project Type: Multi-location', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_opt_type_private'     => array(
+			'label'       => __( 'Project Type: Private Kitchen', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_label_location'       => array(
+			'label'       => __( 'Location Label', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_placeholder_location' => array(
+			'label'       => __( 'Location Example Text', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_label_brief'          => array(
+			'label'       => __( 'Brief & Measurements Label', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_placeholder_brief'    => array(
+			'label'       => __( 'Brief Example Text', 'mooblipoisid-child' ),
+			'description' => __( 'The grey example text inside the brief box.', 'mooblipoisid-child' ),
+			'type'        => 'textarea',
+			'section'     => 'form',
+		),
+		'form_upload_label'         => array(
+			'label'       => __( 'File Upload Label', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_upload_hint'          => array(
+			'label'       => __( 'File Upload Hint', 'mooblipoisid-child' ),
+			'description' => __( 'The small text about allowed file types and size.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_file_remove'          => array(
+			'label'       => __( 'Remove Attached File Label', 'mooblipoisid-child' ),
+			'description' => __( 'Read aloud by screen readers on the “×” button next to an attached file; not visible on the screen.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+		'form_submit'               => array(
+			'label'       => __( 'Submit Button Text', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'form',
+		),
+
+		// Header & buttons.
+		'header_cta_label' => array(
+			'label'       => __( 'Header Button Text', 'mooblipoisid-child' ),
+			'description' => __( 'The button shown in the site header on every page.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'header',
+		),
+		'backtotop_label'  => array(
+			'label'       => __( 'Back-to-top Button Label', 'mooblipoisid-child' ),
+			'description' => __( 'Read aloud by screen readers; not visible on the screen.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'header',
+		),
+
+		// Footer.
+		'footer_tagline'          => array(
+			'label'       => __( 'Brand Tagline', 'mooblipoisid-child' ),
+			'description' => __( 'The sentence under the logo in the footer.', 'mooblipoisid-child' ),
+			'type'        => 'textarea',
+			'section'     => 'footer',
+		),
+		'footer_label_workshop'   => array(
+			'label'       => __( 'Column Title: Workshop', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'footer',
+		),
+		'footer_label_discover'   => array(
+			'label'       => __( 'Column Title: Explore (links)', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'footer',
+		),
+		'footer_label_searches'   => array(
+			'label'       => __( 'Column Title: Enquiries', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'footer',
+		),
+		'footer_searches_text'    => array(
+			'label'       => __( 'Enquiries Text', 'mooblipoisid-child' ),
+			'description' => __( 'The sentence inviting briefs in the footer.', 'mooblipoisid-child' ),
+			'type'        => 'textarea',
+			'section'     => 'footer',
+		),
+		'footer_cta_label'        => array(
+			'label'       => __( 'Footer Button Text', 'mooblipoisid-child' ),
+			'description' => __( 'The button text in the footer.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'footer',
+		),
+		'footer_copyright'        => array(
+			'label'       => __( 'Copyright Text', 'mooblipoisid-child' ),
+			'description' => __( 'The text after “© year name OÜ”.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'footer',
+		),
+		'footer_legal_commission' => array(
+			'label'       => __( 'Legal Link: Commission Terms', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'footer',
+		),
+		'footer_legal_materials'  => array(
+			'label'       => __( 'Legal Link: Material Provenance', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'footer',
+		),
+		'footer_legal_privacy'    => array(
+			'label'       => __( 'Legal Link: Privacy Policy', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'footer',
+		),
 	);
 }
 
@@ -1280,17 +1829,53 @@ function mooblipoisid_homepage_settings_fields() {
  */
 function mooblipoisid_homepage_settings_sections() {
 	return array(
-		'hero'   => array(
+		'hero'         => array(
 			'title'       => __( 'Hero (the top of the homepage)', 'mooblipoisid-child' ),
 			'description' => __( 'The large opening panel with the headline, two buttons and the background photo.', 'mooblipoisid-child' ),
 		),
-		'ethos'  => array(
-			'title'       => __( 'Ethos Band', 'mooblipoisid-child' ),
-			'description' => __( 'The dark band that explains how and why we build.', 'mooblipoisid-child' ),
+		'sectors'      => array(
+			'title'       => __( '“Who We Build For” Section', 'mooblipoisid-child' ),
+			'description' => __( 'The heading and the three sector cards (Cafés & Bars, Retail, Private dining) with their photos and links.', 'mooblipoisid-child' ),
 		),
-		'consult' => array(
-			'title'       => __( 'Consultation Band', 'mooblipoisid-child' ),
-			'description' => __( 'The introduction above the enquiry form at the bottom of the homepage.', 'mooblipoisid-child' ),
+		'ranges'       => array(
+			'title'       => __( '“What We Make” Section', 'mooblipoisid-child' ),
+			'description' => __( 'The heading and the two product-range column titles.', 'mooblipoisid-child' ),
+		),
+		'projects'     => array(
+			'title'       => __( '“Selected Commissions” Section', 'mooblipoisid-child' ),
+			'description' => __( 'The heading above the project cards and the link text on each card.', 'mooblipoisid-child' ),
+		),
+		'capabilities' => array(
+			'title'       => __( '“Capabilities” Section', 'mooblipoisid-child' ),
+			'description' => __( 'The heading and intro above the four capability boxes.', 'mooblipoisid-child' ),
+		),
+		'process'      => array(
+			'title'       => __( '“The Process” Section', 'mooblipoisid-child' ),
+			'description' => __( 'The heading and intro above the numbered process steps.', 'mooblipoisid-child' ),
+		),
+		'stories'      => array(
+			'title'       => __( '“Client Stories” Section', 'mooblipoisid-child' ),
+			'description' => __( 'The heading above the client testimonials.', 'mooblipoisid-child' ),
+		),
+		'ethos'        => array(
+			'title'       => __( 'Ethos Band (the dark workshop band)', 'mooblipoisid-child' ),
+			'description' => __( 'The dark band that explains how and why we build: quote, badge and the two points.', 'mooblipoisid-child' ),
+		),
+		'consult'      => array(
+			'title'       => __( 'Consultation Band & Contacts', 'mooblipoisid-child' ),
+			'description' => __( 'The introduction and the contact people above the enquiry form.', 'mooblipoisid-child' ),
+		),
+		'form'         => array(
+			'title'       => __( 'Enquiry Form', 'mooblipoisid-child' ),
+			'description' => __( 'Every label, placeholder (example text), dropdown option and message of the enquiry form.', 'mooblipoisid-child' ),
+		),
+		'header'       => array(
+			'title'       => __( 'Header & Buttons', 'mooblipoisid-child' ),
+			'description' => __( 'The button in the site header and the back-to-top button label.', 'mooblipoisid-child' ),
+		),
+		'footer'       => array(
+			'title'       => __( 'Footer', 'mooblipoisid-child' ),
+			'description' => __( 'The text pieces of the site footer: tagline, column labels, links, copyright and legal links.', 'mooblipoisid-child' ),
 		),
 	);
 }
@@ -1368,6 +1953,172 @@ function mooblipoisid_add_homepage_settings_page() {
 add_action( 'admin_menu', 'mooblipoisid_add_homepage_settings_page' );
 
 /**
+ * Load the media library scripts and styles for screens with media-picker
+ * fields: the Homepage Settings screen and the sector term screens (the
+ * "Sector Image" field).
+ *
+ * The inline script binds every `.mp-media-field` block on the screen to the
+ * standard WordPress media modal (live preview, Select image, Clear image).
+ *
+ * @param string $hook_suffix Current admin page.
+ */
+function mooblipoisid_admin_media_picker_assets( $hook_suffix ) {
+	$is_homepage_settings = ( 'settings_page_mooblipoisid_homepage_settings' === $hook_suffix );
+
+	$is_sector_screen = in_array( $hook_suffix, array( 'edit-tags.php', 'term.php' ), true )
+		&& isset( $_GET['taxonomy'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		&& 'sector' === sanitize_key( wp_unslash( $_GET['taxonomy'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+	if ( ! $is_homepage_settings && ! $is_sector_screen ) {
+		return;
+	}
+
+	wp_enqueue_media();
+
+	wp_register_script( 'mooblipoisid-homepage-settings-media', '', array( 'media-editor' ), null, true );
+	wp_enqueue_script( 'mooblipoisid-homepage-settings-media' );
+
+	wp_localize_script(
+		'mooblipoisid-homepage-settings-media',
+		'mpHomepageMedia',
+		array(
+			'modalTitle'  => __( 'Choose an image', 'mooblipoisid-child' ),
+			'modalButton' => __( 'Use this image', 'mooblipoisid-child' ),
+		)
+	);
+
+	$script = <<<'JS'
+/* MP-MEDIA-JS-START */
+(function () {
+	'use strict';
+
+	function ready(fn) {
+		if (document.readyState !== 'loading') { fn(); } else { document.addEventListener('DOMContentLoaded', fn); }
+	}
+
+	ready(function () {
+		var i18n = window.mpHomepageMedia || { modalTitle: 'Choose an image', modalButton: 'Use this image' };
+
+		Array.prototype.forEach.call(document.querySelectorAll('.mp-media-field'), function (wrap) {
+			var input = wrap.querySelector('.mp-media-field__input');
+			var preview = wrap.querySelector('.mp-media-field__preview');
+			var empty = wrap.querySelector('.mp-media-field__empty');
+			var choose = wrap.querySelector('.mp-media-field__choose');
+			var clear = wrap.querySelector('.mp-media-field__clear');
+			var frame = null;
+
+			function sync() {
+				var url = input.value.replace(/\s+/g, '');
+				if (url) {
+					preview.src = url;
+					preview.hidden = false;
+					empty.hidden = true;
+					clear.hidden = false;
+				} else {
+					preview.hidden = true;
+					preview.removeAttribute('src');
+					empty.hidden = false;
+					clear.hidden = true;
+				}
+			}
+
+			choose.addEventListener('click', function (event) {
+				event.preventDefault();
+
+				if (!window.wp || !wp.media) { return; }
+
+				if (frame) { frame.open(); return; }
+
+				frame = wp.media({
+					title: i18n.modalTitle,
+					button: { text: i18n.modalButton },
+					library: { type: 'image' },
+					multiple: false
+				});
+
+				frame.on('select', function () {
+					var attachment = frame.state().get('selection').first();
+					if (!attachment) { return; }
+					input.value = attachment.get('url');
+					sync();
+				});
+
+				frame.open();
+			});
+
+			if (clear) {
+				clear.addEventListener('click', function (event) {
+					event.preventDefault();
+					input.value = '';
+					sync();
+				});
+			}
+
+			input.addEventListener('change', sync);
+			input.addEventListener('paste', function () { window.setTimeout(sync, 0); });
+			sync();
+		});
+
+		// The "Add New Sector" form saves over AJAX and WordPress then empties
+		// the inputs without firing change events — re-sync the previews.
+		if (window.jQuery) {
+			jQuery(document).ajaxComplete(function (event, xhr, settings) {
+				if (settings && settings.data && String(settings.data).indexOf('action=add-tag') !== -1) {
+					Array.prototype.forEach.call(document.querySelectorAll('.mp-media-field'), function (wrap) {
+						var input = wrap.querySelector('.mp-media-field__input');
+						if (input) { input.dispatchEvent(new Event('change')); }
+					});
+				}
+			});
+		}
+	});
+})();
+/* MP-MEDIA-JS-END */
+JS;
+	wp_add_inline_script( 'mooblipoisid-homepage-settings-media', $script );
+
+	wp_register_style( 'mooblipoisid-homepage-settings-media', '', array(), null );
+	wp_enqueue_style( 'mooblipoisid-homepage-settings-media' );
+	wp_add_inline_style(
+		'mooblipoisid-homepage-settings-media',
+		'.mp-media-field__preview{max-width:320px;max-height:160px;width:auto;height:auto;padding:4px;border:1px solid #dcdcde;border-radius:4px;background:#f0f0f1;object-fit:contain;}'
+		. '.mp-media-field__empty{margin:0 0 8px;color:#646970;font-style:italic;}'
+		. '.mp-media-field__buttons{margin:8px 0 0;}'
+		. '.mp-media-field .button-link-delete{margin-left:8px;}'
+	);
+}
+add_action( 'admin_enqueue_scripts', 'mooblipoisid_admin_media_picker_assets' );
+
+/**
+ * Render the shared media-picker field markup: live preview, URL input and
+ * Select/Clear buttons. The behaviour is wired up by the inline media script
+ * (see mooblipoisid_admin_media_picker_assets()), which binds every
+ * `.mp-media-field` block on the screen to the WordPress media modal.
+ *
+ * Used by the Homepage Settings "image" fields and the "Sector Image" field on
+ * the sector term screens.
+ *
+ * @param string $name        Input name attribute (the submitted key).
+ * @param string $field_id    Input id attribute.
+ * @param string $value       Current image URL.
+ * @param string $input_class Extra classes for the input (e.g. large-text).
+ */
+function mooblipoisid_render_media_picker_field( $name, $field_id, $value, $input_class = '' ) {
+	$value = is_scalar( $value ) ? (string) $value : '';
+	?>
+	<div class="mp-media-field">
+		<img class="mp-media-field__preview" src="<?php echo esc_url( $value ); ?>" alt="" <?php echo '' === $value ? 'hidden' : ''; ?> />
+		<p class="mp-media-field__empty" <?php echo '' === $value ? '' : 'hidden'; ?>><?php esc_html_e( 'No image selected yet.', 'mooblipoisid-child' ); ?></p>
+		<input type="text" name="<?php echo esc_attr( $name ); ?>" id="<?php echo esc_attr( $field_id ); ?>" value="<?php echo esc_attr( $value ); ?>" class="mp-media-field__input <?php echo esc_attr( $input_class ); ?>" />
+		<p class="mp-media-field__buttons">
+			<button type="button" class="button mp-media-field__choose"><?php esc_html_e( 'Select image', 'mooblipoisid-child' ); ?></button>
+			<button type="button" class="button button-link-delete mp-media-field__clear" <?php echo '' === $value ? 'hidden' : ''; ?>><?php esc_html_e( 'Clear image', 'mooblipoisid-child' ); ?></button>
+		</p>
+	</div>
+	<?php
+}
+
+/**
  * Render one Homepage Settings field for the language being edited.
  *
  * @param array $args Field arguments passed from add_settings_field().
@@ -1400,7 +2151,9 @@ function mooblipoisid_render_homepage_setting_field( $args ) {
 
 	$name = $option_name . '[' . $language . '][' . $field_id . ']';
 
-	if ( 'textarea' === $field['type'] ) {
+	if ( 'image' === $field['type'] ) {
+		mooblipoisid_render_media_picker_field( $name, $field_id, $value, 'large-text' );
+	} elseif ( 'textarea' === $field['type'] ) {
 		printf(
 			'<textarea name="%1$s" id="%2$s" rows="4" class="large-text code">%3$s</textarea>',
 			esc_attr( $name ),
@@ -1516,6 +2269,15 @@ function mooblipoisid_sanitize_homepage_settings( $input ) {
 
 	$input = is_array( $input ) ? $input : array();
 
+	/*
+	 * The admin form submits the fields nested under the language being edited
+	 * (mp_homepage_settings[ru][field_id]), so unwrap that level. A flat array
+	 * (the fields themselves) is accepted too, for programmatic callers.
+	 */
+	if ( isset( $input[ $language ] ) && is_array( $input[ $language ] ) ) {
+		$input = $input[ $language ];
+	}
+
 	$stored = get_option( mooblipoisid_homepage_option_name(), array() );
 	$stored = is_array( $stored ) ? $stored : array();
 	$stored = mooblipoisid_migrate_homepage_settings( $stored );
@@ -1541,7 +2303,7 @@ function mooblipoisid_sanitize_homepage_settings( $input ) {
 
 		$value = sanitize_text_field( $value );
 
-		if ( 'url' === $field['type'] ) {
+		if ( 'url' === $field['type'] || 'image' === $field['type'] ) {
 			$value = esc_url_raw( $value );
 		} elseif ( false !== strpos( $field_id, '_href' ) ) {
 			// Allow in-page anchors (#consultation) as well as full URLs.

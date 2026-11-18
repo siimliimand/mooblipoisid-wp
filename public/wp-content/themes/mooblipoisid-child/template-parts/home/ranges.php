@@ -37,17 +37,19 @@ if ( empty( $mp_ranges ) ) {
 	return;
 }
 
+$mp_settings = function_exists( 'mooblipoisid_get_homepage_settings' ) ? mooblipoisid_get_homepage_settings() : array();
+
 // First half of the ordered list is the hospitality column, second half retail.
 $mp_range_split = (int) floor( count( $mp_ranges ) / 2 );
 
 $mp_range_columns = array(
 	array(
-		'title'    => esc_html__( 'Kohvikud, baarid ja restoranid', 'mooblipoisid-child' ),
+		'title'    => (string) ( $mp_settings['ranges_col_hospitality'] ?? '' ),
 		'icon'     => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M18 8h2a2 2 0 0 1 0 4h-2"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/></svg>',
 		'entries'  => array_slice( $mp_ranges, 0, $mp_range_split ),
 	),
 	array(
-		'title'    => esc_html__( 'Jaekauplused', 'mooblipoisid-child' ),
+		'title'    => (string) ( $mp_settings['ranges_col_retail'] ?? '' ),
 		'icon'     => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 9l1-5h16l1 5"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/></svg>',
 		'entries'  => array_slice( $mp_ranges, $mp_range_split ),
 	),
@@ -57,11 +59,11 @@ $mp_range_columns = array(
   <div class="mp-container">
     <div class="mp-section-head">
       <div>
-        <span class="mp-eyebrow"><?php esc_html_e( 'Mida me valmistame', 'mooblipoisid-child' ); ?></span>
-        <h2 class="mp-headline-lg"><?php esc_html_e( 'Täielik äriklassi valik', 'mooblipoisid-child' ); ?></h2>
+        <span class="mp-eyebrow"><?php echo esc_html( $mp_settings['ranges_eyebrow'] ?? '' ); ?></span>
+        <h2 class="mp-headline-lg"><?php echo esc_html( $mp_settings['ranges_title'] ?? '' ); ?></h2>
       </div>
       <div class="mp-section-head__intro">
-        <p class="mp-body"><?php esc_html_e( 'Valmistatud teie jooniste järgi või koostöös teie arhitektiga ning toodetud täieliku paketina, nii et kõik sobib omavahel kokku paigalduspäeval.', 'mooblipoisid-child' ); ?></p>
+        <p class="mp-body"><?php echo esc_html( $mp_settings['ranges_intro'] ?? '' ); ?></p>
       </div>
     </div>
     <div class="mp-ranges">

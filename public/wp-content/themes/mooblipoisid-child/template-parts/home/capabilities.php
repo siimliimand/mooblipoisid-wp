@@ -42,16 +42,17 @@ $mp_capability_icons = array(
 );
 
 $mp_capability_index = 0;
+$mp_settings         = function_exists( 'mooblipoisid_get_homepage_settings' ) ? mooblipoisid_get_homepage_settings() : array();
 ?>
 <section class="mp-section mp-section--low" id="capabilities">
   <div class="mp-container">
     <div class="mp-section-head">
       <div>
-        <span class="mp-eyebrow"><?php esc_html_e( 'Võimekused', 'mooblipoisid-child' ); ?></span>
-        <h2 class="mp-headline-lg"><?php esc_html_e( 'Üks partner. Kogu teie ruumi sisustus.', 'mooblipoisid-child' ); ?></h2>
+        <span class="mp-eyebrow"><?php echo esc_html( $mp_settings['caps_eyebrow'] ?? '' ); ?></span>
+        <h2 class="mp-headline-lg"><?php echo esc_html( $mp_settings['caps_title'] ?? '' ); ?></h2>
       </div>
       <div class="mp-section-head__intro">
-        <p class="mp-body"><?php esc_html_e( 'Baar ei ole harva ainult puit. Kuna mööbel ja sisustuselemendid valmistatakse meie enda töökojas, saabuvad osad viimistletuna ja paigaldusvalmisena, ilma tarnijate vahel jooksmiseta.', 'mooblipoisid-child' ); ?></p>
+        <p class="mp-body"><?php echo esc_html( $mp_settings['caps_intro'] ?? '' ); ?></p>
       </div>
     </div>
     <div class="mp-caps">

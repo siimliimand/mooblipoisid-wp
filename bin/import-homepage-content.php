@@ -631,7 +631,7 @@ $mp_trust = array(
 	array( '14 Years', 'Furniture & interior fit-out experience' ),
 	array( 'Full-Service', 'Survey, design, manufacture and install by one team.' ),
 	array( 'Built for Service', 'Heat-, scratch- & moisture-resistant surfaces' ),
-	array( 'Out-of-Hours Install', 'Minimal downtime for your opening date' ),
+	array( 'Flexible Install', 'Minimal downtime for your opening date' ),
 );
 
 foreach ( $mp_trust as $i => $fact ) {

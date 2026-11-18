@@ -51,39 +51,40 @@ foreach ( $mp_sectors as $mp_sector ) {
 
 $mp_sectors = wp_list_sort( $mp_sectors, array( 'mp_sort_order' => 'ASC', 'name' => 'ASC' ) );
 
+$mp_settings = function_exists( 'mooblipoisid_get_homepage_settings' ) ? mooblipoisid_get_homepage_settings() : array();
+
 $mp_sector_links = array(
 	'hospitality' => array(
 		'href'  => '#ranges',
-		'label' => __( 'Vaata toitlustusvalikut', 'mooblipoisid-child' ),
+		'label' => (string) ( $mp_settings['sectors_link_hospitality'] ?? '' ),
 	),
 	'retail'      => array(
 		'href'  => '#ranges',
-		'label' => __( 'Vaata jaemüügivalikut', 'mooblipoisid-child' ),
+		'label' => (string) ( $mp_settings['sectors_link_retail'] ?? '' ),
 	),
 	'private'     => array(
 		'href'  => '#consultation',
-		'label' => __( 'Küsi pakkumist', 'mooblipoisid-child' ),
+		'label' => (string) ( $mp_settings['sectors_link_private'] ?? '' ),
 	),
 );
 
 /*
  * The card headline is the marketing name of the card (the "Hospitality"
  * sector is the "Cafés, Bars & Restaurants" card) and the photo alt text is
- * the descriptive sentence shown on the static cards.  Neither of those has a
- * field in the content model yet, so they live here next to the card copy.
- * They are keyed by the Estonian (default) term slug so they stay stable when a
- * term is translated: every language's terms share the slug of the original.
+ * the descriptive sentence shown on the cards. Both are per-language fields on
+ * the Homepage Settings screen, keyed by the Estonian (default) term slug so a
+ * translated sector still resolves to the stable default-language key.
  */
 $mp_sector_titles = array(
-	'hospitality' => __( 'Kohvikud, baarid ja restoranid', 'mooblipoisid-child' ),
-	'retail'      => __( 'Jaemüük ja kaubanduslik sisekujundus', 'mooblipoisid-child' ),
-	'private'     => __( 'Eraköögid', 'mooblipoisid-child' ),
+	'hospitality' => (string) ( $mp_settings['sector_title_hospitality'] ?? '' ),
+	'retail'      => (string) ( $mp_settings['sector_title_retail'] ?? '' ),
+	'private'     => (string) ( $mp_settings['sector_title_private'] ?? '' ),
 );
 
 $mp_sector_alts = array(
-	'hospitality' => __( 'Kohviku ja baari interjöör pika puidust letiga', 'mooblipoisid-child' ),
-	'retail'      => __( 'Kaupluse vitriinriiulid ja kassalauk', 'mooblipoisid-child' ),
-	'private'     => __( 'Erilahendusega tammepuidust köök', 'mooblipoisid-child' ),
+	'hospitality' => (string) ( $mp_settings['sector_alt_hospitality'] ?? '' ),
+	'retail'      => (string) ( $mp_settings['sector_alt_retail'] ?? '' ),
+	'private'     => (string) ( $mp_settings['sector_alt_private'] ?? '' ),
 );
 
 $mp_sector_arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
@@ -92,11 +93,11 @@ $mp_sector_arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
   <div class="mp-container">
     <div class="mp-section-head">
       <div>
-        <span class="mp-eyebrow"><?php esc_html_e( 'Kellele me ehitame', 'mooblipoisid-child' ); ?></span>
-        <h2 class="mp-headline-lg"><?php esc_html_e( 'Mööbel äripindade sisekujunduseks', 'mooblipoisid-child' ); ?></h2>
+        <span class="mp-eyebrow"><?php echo esc_html( $mp_settings['sectors_eyebrow'] ?? '' ); ?></span>
+        <h2 class="mp-headline-lg"><?php echo esc_html( $mp_settings['sectors_title'] ?? '' ); ?></h2>
       </div>
       <div class="mp-section-head__intro">
-        <p class="mp-body"><?php esc_html_e( 'Iga koht on erinev, kuid nõudmised on samad: pikad lahtiolekuajad, pidev kasutus ja bränd, mis peab juba esimesest päevast õige välja nägema.', 'mooblipoisid-child' ); ?></p>
+        <p class="mp-body"><?php echo esc_html( $mp_settings['sectors_intro'] ?? '' ); ?></p>
       </div>
     </div>
     <div class="mp-sectors">
@@ -106,15 +107,15 @@ $mp_sector_arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
         $mp_sector_key   = isset( $mp_sector->mp_origin_slug ) ? (string) $mp_sector->mp_origin_slug : (string) $mp_sector->slug;
         $mp_sector_link  = isset( $mp_sector_links[ $mp_sector_key ] ) ? $mp_sector_links[ $mp_sector_key ] : array(
             'href'  => '#consultation',
-            'label' => __( 'Küsi pakkumist', 'mooblipoisid-child' ),
+            'label' => (string) ( $mp_settings['sectors_link_private'] ?? '' ),
         );
         $mp_sector_img   = (string) get_term_meta( $mp_sector->term_id, 'sector_image', true );
         $mp_sector_alt   = isset( $mp_sector_alts[ $mp_sector_key ] ) ? $mp_sector_alts[ $mp_sector_key ] : wp_strip_all_tags( $mp_sector->name );
         $mp_sector_title = isset( $mp_sector_titles[ $mp_sector_key ] ) ? $mp_sector_titles[ $mp_sector_key ] : wp_strip_all_tags( $mp_sector->name );
         ?>
-      <a class="mp-sector<?php echo 0 === $mp_sector_index ? ' mp-sector--lead' : ''; ?>" href="<?php echo esc_url( $mp_sector_link['href'] ); ?>">
+      <a class="mp-sector" href="<?php echo esc_url( $mp_sector_link['href'] ); ?>">
         <div class="mp-sector__media">
-          <img src="<?php echo esc_url( $mp_sector_img ); ?>" alt="<?php echo esc_attr( $mp_sector_alt ); ?>">
+          <img src="<?php echo esc_url( mooblipoisid_image_src( $mp_sector_img, 'large' ) ); ?>" alt="<?php echo esc_attr( $mp_sector_alt ); ?>" loading="lazy" decoding="async">
           <span class="mp-sector__tag"><?php echo esc_html( wp_strip_all_tags( $mp_sector->name ) . ' • ' . str_pad( (string) ( $mp_sector_index + 1 ), 2, '0', STR_PAD_LEFT ) ); ?></span>
         </div>
         <div class="mp-sector__body">

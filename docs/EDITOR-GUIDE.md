@@ -370,6 +370,7 @@ themselves are managed under the **FAQ** menu, see section 9):
 
 | Field | Shows |
 | --- | --- |
+| **FAQ Section Eyebrow** | The small uppercase label above the FAQ heading, e.g. "Korduma kippuvad" |
 | **FAQ Section Heading** | The heading above the questions, e.g. "Korduma kippuvad küsimused" |
 | **FAQ Section Subline** | The short paragraph under the heading |
 

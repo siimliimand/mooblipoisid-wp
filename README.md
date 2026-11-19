@@ -40,13 +40,13 @@ Mööblipoisid designs, builds and installs custom furniture. Wood, metal and st
 
 ### Languages
 
-The site is trilingual, served via subdirectory URLs (`/` = `et`, `/ru/`, `/en/`), powered by **Polylang** (free) + **Loco Translate** (for gettext strings):
+The site is trilingual, served via subdirectory URLs (`/` = `et`, `/ru/`, `/en/`), powered by **Polylang** (free):
 
 - **et** — Estonian, the default locale (content complete)
 - **ru** — Russian (content complete)
-- **en** — English (content pending — currently falls back to Estonian)
+- **en** — English (content complete)
 
-Each custom post type, taxonomy and Homepage Settings field is per-language, so editors manage a real translation for each language. Template headings, the enquiry form and the footer are gettext strings (source = Estonian) with Russian translations in the child theme's `languages/` folder; untranslated content falls back to the Estonian original so no section ever disappears while a language is being translated. The language switcher (header + footer) and `hreflang` alternates are handled by Polylang.
+Each custom post type, taxonomy and Homepage Settings field is per-language, so editors manage a real translation for each language. Template headings, the enquiry form and the footer are gettext strings (source = Estonian) with Russian and English translations in the child theme's `languages/` folder; untranslated content falls back to the Estonian original so no section ever disappears while a language is being translated. The language switcher and `hreflang` alternates are handled by Polylang; canonical per-language front-page URLs and hreflang correctness are additionally normalized by the `mooblipoisid-polylang-early.php` mu-plugin.
 
 ## Local Development
 
@@ -69,7 +69,7 @@ ddev wp core install --url="https://mooblipoisid.ddev.site" --title="Mööblipoi
 - Site: <https://mooblipoisid.ddev.site> · wp-admin: `/wp-admin/`
 - DB credentials: `db` / `db` / `db` (DDEV defaults, managed by `wp-config-ddev.php`)
 - Theme: Kadence + `mooblipoisid-child` are committed and pre-configured (palette, typography, header/footer builders are DB-stored; backups in `docs/kadence-theme-mods.json` and `docs/kadence-global-palette.json`)
-- Outbound email is captured by DDEV's Mailpit: <https://mooblipoisid.ddev.site:8026> (enquiry form submissions land there)
+- Outbound email is captured by DDEV's Mailpit: <https://mooblipoisid.ddev.site:8026> — note the CPaaS mu-plugin routes all `wp_mail()` through Zoho's API when an API key is configured, so set the key to empty to use the Mailpit fallback locally
 
 ### Quick start (plain Docker)
 
@@ -87,8 +87,11 @@ Production is hosted at [zone.ee](https://www.zone.ee/) on shared PHP hosting.
 - Upload/deploy WordPress files over SFTP/SSH (`public/` contents → site docroot)
 - Import the database and update `wp-config.php` with zone.ee DB credentials
 - The site is trilingual via Polylang (`et` default, `/ru/`, `/en/`); keep the `wp-content/plugins/polylang/` and the child theme `languages/` folder intact on deploy
-- Add the `wp-config.php` warning-suppression lines (from the local file) to production too
+- The mu-plugins (SEO layer, Polylang URL normalization, CPaaS mail) ship with the repo and activate automatically; `robots.txt` is a committed physical file with the production sitemap lines
+- Add the `wp-config.php` warning-suppression lines (from the local file) to production too — plus the four `MOOBLIPOISID_*` mail constants when the email task resumes (see `docs/email-cpaas-setup.md`)
+- Local Google Fonts cache into `wp-content/fonts/` on first render (needs outbound HTTPS; regenerate from the Customizer if needed)
 - Zone serves sites over HTTPS by default (Let's Encrypt) — make sure site URL uses `https://`
+- After launch: verify the domain in Google Search Console + Bing Webmaster Tools and submit the sitemaps — checklist in `docs/SEO-AI.md`
 
 ## Repository Layout
 
@@ -100,8 +103,10 @@ Production is hosted at [zone.ee](https://www.zone.ee/) on shared PHP hosting.
 ├── bin/                            # helper scripts (content import + idempotent seeders)
 ├── public/                         # WordPress docroot (committed)
 │   └── wp-content/
-│       ├── mu-plugins/
-│       │   └── mooblipoisid-seo.php  # SEO head, JSON-LD, robots/llms.txt (always on)
+│       ├── mu-plugins/               # always-on plugins (load before everything)
+│       │   ├── mooblipoisid-seo.php          # SEO head, JSON-LD, OG tags, llms.txt, sitemap trim
+│       │   ├── mooblipoisid-polylang-early.php # canonical front-page URLs before Polylang boots
+│       │   └── mooblipoisid-cpaas-mail.php   # outgoing email via Zoho CPaaS (wp_mail override)
 │       ├── plugins/
 │       │   ├── kadence-blocks/     # Kadence Blocks plugin
 │       │   └── polylang/           # Polylang (multilingual: et/ru/en)
@@ -133,15 +138,15 @@ The homepage is rendered dynamically by `front-page.php`, which pulls content fr
 
 - **Custom post types:** `project` (featured project cards), `testimonial` (client stories), `range` (product ranges), `capability`, `step` (process steps), `trust_stat` (trust-strip facts), `mooblipoisid_faq` (homepage FAQ). Each supports title, a short description (or answer), a card image and ordering.
 - **Taxonomies:** `sector` (Hospitality / Retail / Private — drives the sectors section and tags projects) and `project_tag` (materials & features shown on project cards).
-- **Homepage Settings** (Settings → Homepage Settings): the one-off static text — hero headline/sub/CTAs, ethos band, consultation intro, FAQ section heading and the optional SEO & Sharing overrides (meta title/description/social image, with automatic fallbacks when empty).
+- **Homepage Settings** (Settings → Homepage Settings): the one-off static text — hero headline/sub/CTAs, ethos band, consultation intro, FAQ section eyebrow/heading and the optional SEO & Sharing overrides (meta title/description/social image, with automatic fallbacks when empty).
 
 Each homepage section is a template part in `template-parts/home/` that queries the matching content and emits the design's markup. `docs/homepage-content.html` is kept only as a reference snapshot of the original static version.
 
-All post types and taxonomies are registered `public` and are marked translatable in Polylang, so every entry, term and Homepage Settings field has a per-language translation. Template headings, the enquiry form and the footer are gettext strings translated per language via the child theme's `languages/` folder. The enquiry form is the `[mooblipoisid_enquiry_form]` shortcode (rendered inside the `#consultation` section); submissions email both managers (verify deliverability with SMTP before launch).
+All post types and taxonomies are marked translatable in Polylang, so every entry, term and Homepage Settings field has a per-language translation. Template headings, the enquiry form and the footer are gettext strings translated per language via the child theme's `languages/` folder. The enquiry form is the `[mooblipoisid_enquiry_form]` shortcode (rendered inside the `#consultation` section); outgoing mail is sent through the Zoho CPaaS transactional API by the `mooblipoisid-cpaas-mail.php` mu-plugin (plain PHP `mail()`/Mailpit fallback when no API key is configured — see `docs/email-cpaas-setup.md` for the paused setup state).
 
 ### SEO & AI visibility
 
-The SEO layer lives in `wp-content/mu-plugins/mooblipoisid-seo.php` (always on): per-language document titles and meta descriptions, Open Graph/Twitter tags, canonical + hreflang URLs, a single JSON-LD `@graph` (Organization / WebSite / WebPage / BreadcrumbList / FAQPage / OfferCatalog), an `/llms.txt` route and a trimmed `wp-sitemap.xml` (no users provider). It reads its data from the content model: the Homepage Settings "SEO & Sharing" fields (optional overrides with smart fallbacks), the FAQ entries (FAQPage JSON-LD) and **Settings → Mööblipoisid: Company info** (`mooblipoisid_company_info` — feeds the Organization block and the llms.txt Contact section).
+The SEO layer lives in `wp-content/mu-plugins/mooblipoisid-seo.php` (always on): per-language document titles and meta descriptions, Open Graph/Twitter tags, canonical + hreflang URLs, a single JSON-LD `@graph` (Organization / WebSite / WebPage / BreadcrumbList / FAQPage / OfferCatalog), an `/llms.txt` route, a physical `robots.txt` and a trimmed `wp-sitemap.xml` (no users or taxonomy providers; term archives are noindexed). It reads its data from the content model: the Homepage Settings "SEO & Sharing" fields (optional overrides with smart fallbacks), the FAQ entries (FAQPage JSON-LD on the homepage) and **Settings → Mööblipoisid: Company info** (`mooblipoisid_company_info` — feeds the Organization block and the llms.txt Contact section).
 
 Google Fonts are hosted locally (Kadence "Load Google Fonts Locally" theme mods are set; font files cache into `wp-content/fonts/`, regenerate on demand, and are not in git). The full audit trail, seeded content drafts for client review, launch checklist and re-verification commands are in **`docs/SEO-AI.md`**.
 

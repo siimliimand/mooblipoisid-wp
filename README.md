@@ -97,9 +97,11 @@ Production is hosted at [zone.ee](https://www.zone.ee/) on shared PHP hosting.
 ├── README.md                       # this file
 ├── docker-compose.yml              # plain Docker fallback (WordPress + MariaDB)
 ├── .ddev/                          # DDEV project config (WordPress, PHP 8.3)
-├── bin/                            # helper scripts (one-time content import)
+├── bin/                            # helper scripts (content import + idempotent seeders)
 ├── public/                         # WordPress docroot (committed)
 │   └── wp-content/
+│       ├── mu-plugins/
+│       │   └── mooblipoisid-seo.php  # SEO head, JSON-LD, robots/llms.txt (always on)
 │       ├── plugins/
 │       │   ├── kadence-blocks/     # Kadence Blocks plugin
 │       │   └── polylang/           # Polylang (multilingual: et/ru/en)
@@ -109,7 +111,7 @@ Production is hosted at [zone.ee](https://www.zone.ee/) on shared PHP hosting.
 │               ├── front-page.php      # renders the homepage from the content model
 │               ├── template-parts/home/  # one template part per homepage section
 │               ├── inc/
-│               │   ├── content-model.php # CPT/taxonomy/Homepage Settings registration
+│               │   ├── content-model.php # CPT/taxonomy/Homepage Settings/company info registration
 │               │   └── polylang-front-page-urls.php # language front-page URL handling
 │               ├── languages/       # gettext translations (mooblipoisid-child-*.po/.mo)
 │               ├── functions.php    # enquiry form + textdomain + translation filters
@@ -117,6 +119,8 @@ Production is hosted at [zone.ee](https://www.zone.ee/) on shared PHP hosting.
 ├── docs/
 │   ├── html/                       # design prototype / static reference (not part of WP)
 │   ├── EDITOR-GUIDE.md             # how to edit homepage content in wp-admin
+│   ├── SEO-AI.md                   # SEO/AI layer status, seeded drafts, launch checklist
+│   ├── email-cpaas-setup.md        # outgoing email setup (paused)
 │   ├── kadence-theme-mods.json     # customizer backup (recreate via wp eval-file if DB is lost)
 │   ├── kadence-global-palette.json # global palette backup
 │   └── homepage-content.html       # REFERENCE SNAPSHOT of the original static markup (not rendered)
@@ -127,13 +131,19 @@ Production is hosted at [zone.ee](https://www.zone.ee/) on shared PHP hosting.
 
 The homepage is rendered dynamically by `front-page.php`, which pulls content from a structured, admin-editable content model — **not** from page block markup. Editors maintain it entirely in wp-admin (no code/HTML); see **`docs/EDITOR-GUIDE.md`**.
 
-- **Custom post types:** `project` (featured project cards), `testimonial` (client stories), `range` (product ranges), `capability`, `step` (process steps), `trust_stat` (trust-strip facts). Each supports title, a short description, a card image and ordering.
+- **Custom post types:** `project` (featured project cards), `testimonial` (client stories), `range` (product ranges), `capability`, `step` (process steps), `trust_stat` (trust-strip facts), `mooblipoisid_faq` (homepage FAQ). Each supports title, a short description (or answer), a card image and ordering.
 - **Taxonomies:** `sector` (Hospitality / Retail / Private — drives the sectors section and tags projects) and `project_tag` (materials & features shown on project cards).
-- **Homepage Settings** (Settings → Homepage Settings): the one-off static text — hero headline/sub/CTAs, ethos band, consultation intro.
+- **Homepage Settings** (Settings → Homepage Settings): the one-off static text — hero headline/sub/CTAs, ethos band, consultation intro, FAQ section heading and the optional SEO & Sharing overrides (meta title/description/social image, with automatic fallbacks when empty).
 
 Each homepage section is a template part in `template-parts/home/` that queries the matching content and emits the design's markup. `docs/homepage-content.html` is kept only as a reference snapshot of the original static version.
 
 All post types and taxonomies are registered `public` and are marked translatable in Polylang, so every entry, term and Homepage Settings field has a per-language translation. Template headings, the enquiry form and the footer are gettext strings translated per language via the child theme's `languages/` folder. The enquiry form is the `[mooblipoisid_enquiry_form]` shortcode (rendered inside the `#consultation` section); submissions email both managers (verify deliverability with SMTP before launch).
+
+### SEO & AI visibility
+
+The SEO layer lives in `wp-content/mu-plugins/mooblipoisid-seo.php` (always on): per-language document titles and meta descriptions, Open Graph/Twitter tags, canonical + hreflang URLs, a single JSON-LD `@graph` (Organization / WebSite / WebPage / BreadcrumbList / FAQPage / OfferCatalog), an `/llms.txt` route and a trimmed `wp-sitemap.xml` (no users provider). It reads its data from the content model: the Homepage Settings "SEO & Sharing" fields (optional overrides with smart fallbacks), the FAQ entries (FAQPage JSON-LD) and **Settings → Mööblipoisid: Company info** (`mooblipoisid_company_info` — feeds the Organization block and the llms.txt Contact section).
+
+Google Fonts are hosted locally (Kadence "Load Google Fonts Locally" theme mods are set; font files cache into `wp-content/fonts/`, regenerate on demand, and are not in git). The full audit trail, seeded content drafts for client review, launch checklist and re-verification commands are in **`docs/SEO-AI.md`**.
 
 ## Contacts
 

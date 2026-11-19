@@ -2,6 +2,7 @@
 public/wp-config.php
 public/wp-config-ddev.php
 public/wp-content/uploads/
+public/wp-content/fonts/
 public/wp-content/upgrade/
 public/wp-content/advanced-cache.php
 public/wp-content/object-cache.php

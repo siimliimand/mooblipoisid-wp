@@ -14,11 +14,13 @@ forms in the WordPress admin area.
 6. [Capabilities](#6-capabilities)
 7. [Process Steps](#7-process-steps)
 8. [Trust Facts](#8-trust-facts)
-9. [Sectors](#9-sectors)
-10. [Materials & Features (project tags)](#10-materials--features-project-tags)
-11. [Homepage Settings](#11-homepage-settings)
-12. [Where things appear on the homepage](#12-where-things-appear-on-the-homepage)
-13. [Short answers to common questions](#13-short-answers-to-common-questions)
+9. [FAQ](#9-faq)
+10. [Sectors](#10-sectors)
+11. [Materials & Features (project tags)](#11-materials--features-project-tags)
+12. [Homepage Settings](#12-homepage-settings)
+13. [Company info](#13-company-info)
+14. [Where things appear on the homepage](#14-where-things-appear-on-the-homepage)
+15. [Short answers to common questions](#15-short-answers-to-common-questions)
 
 ## 1. How to log in
 
@@ -45,6 +47,7 @@ the content you enter in these admin screens:
 - **Capabilities** — what the workshop can make
 - **Process Steps** — the numbered steps
 - **Trust Facts** — the short facts under the big photo at the top
+- **FAQ** — the questions and answers at the bottom of the homepage
 - **Sectors** — the "who we build for" cards
 - **Homepage Settings** (under **Settings**) — the top photo, headline, buttons
   and the two text bands
@@ -234,7 +237,47 @@ These are the short facts in the strip right under the big photo at the top.
 Steps: click **Trust Facts → Add New**, type the value and the caption, set the
 **Order**, click **Publish**. Four facts fit the strip comfortably.
 
-## 9. Sectors
+## 9. FAQ
+
+**Admin menu:** **FAQ** (left menu)
+
+These are the questions and answers in the "Frequently asked questions" section
+near the bottom of the homepage. Every question has **its own version in each
+language** — write them all so the section shows translated answers.
+
+| Field in the editor | What it shows on the homepage |
+| --- | --- |
+| **Question** (the title box) | The question line the visitor clicks on |
+| **Answer** (the main text box) | The answer shown when the question is opened |
+| **Order** ("Order on Homepage") | The order of the questions. Lower numbers first |
+
+Steps to add a question:
+
+1. Click **FAQ → Add New**.
+2. Type the question in the title box and the answer in the main text box
+   (plain sentences — no headings or layout needed).
+3. Set the **Order** (1, 2, 3 …).
+4. Click **Publish**.
+
+Translating a question:
+
+1. Open the question in **FAQ**.
+2. In the top admin bar, use the language switcher (the flags next to the
+   language name) to create or open the Russian and English versions of the
+   same question.
+3. The three versions are linked: the homepage shows the one matching the
+   language the visitor is reading.
+
+Notes:
+
+- The section heading ("Korduma kippuvad küsimused" etc.) is edited in
+  **Settings → Homepage Settings** ("FAQ Section", see section 12).
+- **If no questions exist in a language, the whole FAQ section hides itself on
+  that language's homepage** — it never shows an empty box.
+- The questions also feed the FAQ structured data (FAQPage JSON-LD) that
+  search engines read; changing a question here updates that automatically.
+
+## 10. Sectors
 
 **Admin menu:** **Projects → Sectors** (left menu, under **Projects**)
 
@@ -271,7 +314,7 @@ Notes:
 - After adding or removing a sector, check the numbering — the numbers follow
   the **Sort Order** automatically.
 
-## 10. Materials & Features (project tags)
+## 11. Materials & Features (project tags)
 
 **Admin menu:** **Projects → Materials & Features**
 
@@ -285,7 +328,7 @@ These are the small tags shown on project cards, e.g. "Smoked Oak",
 
 Tags appear on a card in the order you tick/add them to that project.
 
-## 11. Homepage Settings
+## 12. Homepage Settings
 
 **Admin menu:** **Settings → Homepage Settings**
 
@@ -322,13 +365,53 @@ Settings**.
 | **Consultation Headline** | The heading above the form, e.g. "Let's plan your venue or store." |
 | **Consultation Intro Text** | The paragraph under the heading, above the form |
 
+**FAQ Section** — the heading of the questions section (the questions
+themselves are managed under the **FAQ** menu, see section 9):
+
+| Field | Shows |
+| --- | --- |
+| **FAQ Section Heading** | The heading above the questions, e.g. "Korduma kippuvad küsimused" |
+| **FAQ Section Subline** | The short paragraph under the heading |
+
+**SEO & Sharing** — how the homepage appears in search results and when it is
+shared on social media. **Every field here is optional**: when left empty, the
+site fills in sensible automatic values (the description falls back to the hero
+subline, the share image falls back to the hero photo):
+
+| Field | Shows |
+| --- | --- |
+| **SEO Meta Title** | The browser-tab and search-result title. Keep it around 60 characters |
+| **SEO Meta Description** | The search-result snippet under the title. Keep it around 155 characters |
+| **Social Sharing Image** | The image shown when someone shares the homepage link (ideally a wide picture, 1200 × 630 pixels) |
+
 Notes:
 
 - The enquiry form itself and the manager contact details (names, phone, email)
   are not edited here — ask the developer to change those.
 - Use `#section-name` style links to point buttons at a place on the same page.
 
-## 12. Where things appear on the homepage
+## 13. Company info
+
+**Admin menu:** **Settings → Mööblipoisid: Company info**
+
+This screen holds the company facts used by search engines and AI assistants —
+it is **not** shown as visible text on the homepage. The values feed the
+structured data (Organization JSON-LD) attached to every page and the
+`/llms.txt` file that AI engines read.
+
+| Field | Used as |
+| --- | --- |
+| **Legal Name** | The company name in structured data (e.g. "Mööblipoisid OÜ") |
+| **Registry Code** | The official company identifier in structured data |
+| **Phone / Alt Phone** | The phone number in structured data and `/llms.txt` |
+| **Email / Alt Email** | The email address in structured data and `/llms.txt` |
+| **Facebook / Instagram / LinkedIn** | Profile links in structured data (leave empty if none) |
+| **Address (ET / RU / EN)** | Reserved for the business-address block — leave empty until the client confirms the exact wording |
+
+Changes here are safe: nothing breaks if a field is empty, it is simply left
+out of the structured data.
+
+## 14. Where things appear on the homepage
 
 | Homepage section (from the top) | Edited in |
 | --- | --- |
@@ -341,10 +424,11 @@ Notes:
 | Capabilities — "One Workshop…" | **Capabilities** |
 | Process — "From Brief to Opening Day" | **Process Steps** |
 | Client stories — "What Our Clients Say" | **Client Stories** |
+| FAQ — "Frequently asked questions" | **FAQ** (heading + subline in **Settings → Homepage Settings**, FAQ Section) |
 | Consultation — intro above the enquiry form | **Settings → Homepage Settings** (Consultation Band) |
 | Enquiry form and manager contacts | Fixed (ask the developer) |
 
-## 13. Short answers to common questions
+## 15. Short answers to common questions
 
 **Nothing changed after I clicked Update.**
 Open the homepage in a private/incognito browser window (or press Ctrl+F5) —

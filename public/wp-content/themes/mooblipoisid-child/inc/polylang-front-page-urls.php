@@ -37,13 +37,42 @@
  *    the canonical URLs, since `PLL_Static_Pages::page_link()` can rewrite
  *    `PLL_Language::$home_url` through `PLL_Language::to_array()` during a request.
  *
+ * 4. Owns the final `page_link` value for the language front pages. On a front-end
+ *    request Polylang translates the `page_on_front` option to the current
+ *    language (`PLL_Static_Pages::translate_page_id()`), so core's
+ *    `get_page_link()` takes its `home_url( '/' )` shortcut for every language's
+ *    front page, and Polylang's `home_url` filter declines to prefix that URL
+ *    when it is called from `wp_get_canonical_url()` or the sitemap renderer
+ *    (its backtrace whitelist does not match those callers). The result was the
+ *    un-prefixed Estonian root leaking into `rel=canonical` on `/ru/` and `/en/`
+ *    and into the front-page `<loc>` of the `ru` and `en` sub-sitemaps. This
+ *    filter returns the freshly computed language-root URL for front pages, so
+ *    `rel_canonical`, the core sitemaps, shortlinks, menus and `get_permalink()`
+ *    all agree with the hreflang URLs produced below.
+ *
+ * 5. Repairs the persisted `pll_languages_list` transient when Polylang rebuilt
+ *    it before this file was loaded. Polylang builds each language's `home_url`
+ *    from the *page slug* during `pll_additional_language_data`
+ *    (`PLL_Links_Model::set_language_home_urls()`, priority 10) and stores the
+ *    list in the transient. On a cold start that rebuild happens while the
+ *    `setup_theme` action fires - i.e. *before* a theme's functions.php is
+ *    loaded - so the priority-999 normalizer below is not registered yet and the
+ *    transient gets stored with `/ru/<slug>/`-style URLs. Polylang also fires
+ *    `pll_language_defined` during that same early phase, so the repair hooked
+ *    to it never runs in a web request. The transient is therefore re-checked on
+ *    `wp_loaded` (always reached after functions.php) and, when it drifted, both
+ *    the persisted list and the in-memory language objects are rebuilt from the
+ *    canonical URLs. Without this, a rebuild re-persists `/ru/<slug>/` home URLs
+ *    and every request bounces between `/ru/` and `/ru/<slug>/` again.
+ *
  * No core, plugin or third-party files are modified. Request routing is untouched:
  * Polylang still matches `/ru/` and `/en/` by their rewrite rules and serves the
  * corresponding front page.
  *
  * A dedicated `pll_additional_language_data` callback owns the front-page
- * `home_url` (it runs at priority 999 - after Polylang's own builder at 10 - and is
- * left in place), while `PLL_Links_Model::set_language_home_urls` is un-hooked.
+ * `home_url` (it runs at priority 999 - after Polylang's slug-based builder at
+ * 10 - and is left in place). It only applies while the theme is loaded, which is
+ * why the `wp_loaded` repair in item 5 exists for lists persisted earlier.
  * This keeps the persisted `pll_languages_list` transient from ever storing the
  * `/ru/home/`-style URLs, including when the cache is rebuilt on a cold request.
  *
@@ -233,7 +262,66 @@ function mooblipoisid_polylang_canonical_home_url( $slug, $links_model = null ) 
 }
 
 /**
+ * Rewrites the permalink of the language front pages to the canonical language root.
+ *
+ * On a front-end request Polylang translates the `page_on_front` option to the
+ * current language (`PLL_Static_Pages::translate_page_id()`), so core's
+ * `get_page_link()` takes its `home_url( '/' )` shortcut for the current
+ * language's front page and never reaches `_get_page_link()`, where Polylang's
+ * `PLL_Filters_Links::_get_page_link()` adds the language prefix. Polylang's
+ * own `home_url` filter cannot rescue the URL: its backtrace whitelist only
+ * matches calls from `home_url()`/`bloginfo()`-style frames (theme files, nav
+ * menus), not from `wp_get_canonical_url()` or the sitemap renderer. The
+ * un-prefixed Estonian root therefore leaked into `rel=canonical` on `/ru/`
+ * and `/en/` and into the front-page `<loc>` of their sub-sitemaps.
+ *
+ * For a language front page this returns `mooblipoisid_polylang_canonical_home_url()`,
+ * always computed on the fly - never read from a cached per-language property -
+ * so a stale cache cannot reintroduce the `/ru/` <-> `/ru/<slug>/` ping-pong
+ * described above. For every other post the incoming link is returned unchanged,
+ * including the translated `page_for_posts` page and non-front pages.
+ *
+ * Runs at priority 30: after Polylang's own `page_link` filter (priority 20,
+ * detached above) and after `PLL_Filters_Links::_get_page_link()` (priority 20
+ * on the `_get_page_link` tag), so the canonical URL always wins.
+ *
+ * @param string $link    The page's permalink.
+ * @param int    $post_id The ID of the page.
+ * @param bool   $sample  Whether it is a sample permalink. Unused.
+ * @return string The canonical permalink.
+ */
+function mooblipoisid_polylang_front_page_link( $link, $post_id, $sample = false ) {
+	unset( $sample );
+
+	if ( ! mooblipoisid_polylang_available() || empty( $post_id ) ) {
+		return $link;
+	}
+
+	$language = PLL()->model->post->get_language( (int) $post_id );
+	if ( mooblipoisid_polylang_front_page_id( $language ) !== (int) $post_id ) {
+		return $link;
+	}
+
+	$links_model = isset( PLL()->links_model ) && is_object( PLL()->links_model ) ? PLL()->links_model : null;
+	$canonical   = mooblipoisid_polylang_canonical_home_url( $language->slug, $links_model );
+
+	return $canonical ? $canonical : $link;
+}
+
+/**
  * Sanitizes the stored `pll_languages_list` transient to canonical front-page URLs.
+ *
+ * Polylang persists each language's slug-based `home_url` in the
+ * `pll_languages_list` transient whenever it rebuilds the languages list, and on a
+ * cold start that rebuild runs before the theme is loaded (see the file docblock,
+ * item 5). This function detects the resulting drift and repairs both the
+ * persisted transient and the in-memory language objects, which were created from
+ * the broken transient earlier in the same request.
+ *
+ * Hooked to `pll_language_defined` (fires too early to be reached in a web
+ * request, but useful in WP-CLI contexts where the event fires late) and to
+ * `wp_loaded` (always reached after functions.php), which is the hook that
+ * actually repairs the cache.
  *
  * @return void
  */
@@ -249,13 +337,45 @@ function mooblipoisid_polylang_refresh_persisted_language_cache() {
 
 	$normalized = mooblipoisid_polylang_normalize_language_home_urls( $stored );
 
-	if ( $normalized !== $stored ) {
-		set_transient( 'pll_languages_list', $normalized );
+	if ( $normalized === $stored ) {
+		return;
+	}
+
+	// Persist the canonical URLs...
+	set_transient( 'pll_languages_list', $normalized );
+
+	// ...and refresh the in-memory language objects, which were built from the
+	// broken transient earlier in this request (before the theme was loaded).
+	$languages = isset( PLL()->model, PLL()->model->languages ) ? PLL()->model->languages : null;
+
+	if ( is_object( $languages ) && is_callable( array( $languages, 'clean_local_cache' ) ) ) {
+		$languages->clean_local_cache();
+	}
+
+	$fresh_languages = array();
+
+	if ( isset( PLL()->model ) && is_callable( array( PLL()->model, 'get_languages_list' ) ) ) {
+		foreach ( PLL()->model->get_languages_list() as $fresh_language ) {
+			$fresh_languages[ $fresh_language->slug ] = $fresh_language;
+		}
+	}
+
+	// Polylang components hold `curlang` by reference, but the instance itself was
+	// created from the broken transient; re-point the reference to the freshly
+	// rebuilt instance so the current request serves the canonical URLs too.
+	if ( isset( PLL()->curlang, $fresh_languages[ PLL()->curlang->slug ] ) ) {
+		PLL()->curlang = $fresh_languages[ PLL()->curlang->slug ];
 	}
 }
 
 // Canonical front-page URIs in every generated URL (permalinks, redirects, hreflang).
 add_filter( 'get_page_uri', 'mooblipoisid_polylang_front_page_uri', 20, 2 );
+
+// Canonical language-root permalink for the language front pages. Priority 30 =
+// after Polylang's own `page_link` filter (priority 20, detached above), so the
+// fresh canonical URL wins for every consumer of `get_permalink()`:
+// `rel_canonical`, the core sitemap `<loc>`s, shortlinks and menus.
+add_filter( 'page_link', 'mooblipoisid_polylang_front_page_link', 30, 3 );
 
 // Canonical front-page `home_url` per language. Priority 999 = runs after
 // Polylang's own builder (priority 10) and owns the final value.
@@ -267,3 +387,8 @@ add_action( 'wp_loaded', 'mooblipoisid_polylang_detach_stale_front_page_filter',
 
 // Keep the persisted language cache consistent with the canonical URLs.
 add_action( 'pll_language_defined', 'mooblipoisid_polylang_refresh_persisted_language_cache', 20 );
+
+// The `pll_language_defined` hook above fires before a theme's functions.php
+// loads, so a languages list persisted by a pre-theme cold rebuild would never
+// be repaired in a web request. `wp_loaded` is always reached after functions.php.
+add_action( 'wp_loaded', 'mooblipoisid_polylang_refresh_persisted_language_cache', 21 );

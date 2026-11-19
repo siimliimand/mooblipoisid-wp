@@ -4,16 +4,21 @@
  *
  * Everything a non-technical editor needs to maintain the homepage lives here:
  *
- *  - Content entries (custom post types)   -> project, testimonial, range, capability, step, trust_stat
+ *  - Content entries (custom post types)   -> project, testimonial, range, capability, step, trust_stat, mooblipoisid_faq
  *  - Grouping terms (taxonomies)           -> sector, project_tag   (on Projects)
  *  - Extra entry details (post meta)       -> mp_location_type, mp_role, mp_city, mp_rating, mp_week
  *  - One-off homepage text (single option) -> mp_homepage_settings (stored per language)
+ *  - Page SEO (post meta on Pages)         -> _mooblipoisid_seo_title, _mooblipoisid_seo_description, _mooblipoisid_seo_social_image
+ *  - Company info (single option)          -> mooblipoisid_company_info
  *
  * Multilingual (Polylang):
- *  - The six content types and the two taxonomies are declared translatable by the
- *    theme (`mooblipoisid_polylang_translatable_content()`), so the settings are
- *    enforced in code: the content model stays complete on every deploy, and the
- *    entries are filtered by the active language automatically.
+ *  - The six homepage content types and the two taxonomies are declared
+ *    translatable by the theme (`mooblipoisid_polylang_translatable_content()`),
+ *    so the settings are enforced in code: the content model stays complete on
+ *    every deploy, and the entries are filtered by the active language
+ *    automatically. The FAQ post type (`mooblipoisid_faq`) is registered
+ *    translatable in the Polylang settings themselves (via wp-cli), not from
+ *    this file — see the note on the post type below.
  *  - `mp_homepage_settings` holds one set of fields per language
  *    ( `array( 'et' => array( … ), 'ru' => array( … ), 'en' => array( … ) )` ) and
  *    `mooblipoisid_get_homepage_settings()` resolves the active language, falling
@@ -96,6 +101,21 @@ function mooblipoisid_content_post_types() {
 			'supports'    => array( 'title', 'excerpt', 'page-attributes' ),
 			'menu_position' => 26,
 		),
+		/*
+		 * The FAQ entries of the homepage FAQ section. NOTE: `mooblipoisid_faq`
+		 * is deliberately NOT listed in `mooblipoisid_translatable_content()`
+		 * below (that list is mirrored into the `polylang` option on admin_init).
+		 * Polylang's translatable post types are extended for it outside this
+		 * file (via wp-cli), so nothing here writes to the Polylang settings.
+		 */
+		'mooblipoisid_faq' => array(
+			'label'       => __( 'FAQ', 'mooblipoisid-child' ),
+			'singular'    => __( 'FAQ', 'mooblipoisid-child' ),
+			'desc'        => __( 'The questions and answers shown in the FAQ section of the homepage. Put the question in the title and the answer in the main text box.', 'mooblipoisid-child' ),
+			'menu_icon'   => 'dashicons-editor-help',
+			'supports'    => array( 'title', 'editor', 'page-attributes' ),
+			'menu_position' => 27,
+		),
 	);
 }
 
@@ -146,6 +166,52 @@ function mooblipoisid_register_content_post_types() {
 	}
 }
 add_action( 'init', 'mooblipoisid_register_content_post_types' );
+
+/**
+ * The published FAQ entries of the active language, in homepage order.
+ *
+ * `mooblipoisid_faq` entries sort like every other content type: the
+ * "Order on Homepage" page attribute (`menu_order`) ascending, with the post
+ * date breaking ties. Polylang filters the query by the active language on the
+ * frontend (the post type is registered translatable in the Polylang settings,
+ * see the note on the post type above), so no `lang` argument is passed here —
+ * the same way the homepage section queries rely on the language filter.
+ *
+ * The question and the answer are returned raw: the consumer escapes or
+ * sanitizes them for the context it renders.
+ *
+ * @return array[] A list of `array( 'id' => int, 'question' => string, 'answer' => string )`.
+ */
+function mooblipoisid_get_faqs() {
+	if ( ! post_type_exists( 'mooblipoisid_faq' ) ) {
+		return array();
+	}
+
+	$posts = get_posts(
+		array(
+			'post_type'              => 'mooblipoisid_faq',
+			'post_status'            => 'publish',
+			'posts_per_page'         => -1,
+			'orderby'                => 'menu_order',
+			'order'                  => 'ASC',
+			'ignore_sticky_posts'    => true,
+			'no_found_rows'          => true,
+			'update_post_term_cache' => false,
+			'update_post_meta_cache' => false,
+		)
+	);
+
+	$faqs = array();
+	foreach ( (array) $posts as $post ) {
+		$faqs[] = array(
+			'id'       => (int) $post->ID,
+			'question' => (string) $post->post_title,
+			'answer'   => (string) $post->post_content,
+		);
+	}
+
+	return $faqs;
+}
 
 /* ==========================================================================
  * 1b. Multilingual content model (Polylang)
@@ -279,6 +345,10 @@ function mooblipoisid_editor_panel_labels() {
 		'trust_stat' => array(
 			'title'   => __( 'Value (e.g. "18 Years")', 'mooblipoisid-child' ),
 			'excerpt' => __( 'Caption (the line under the value)', 'mooblipoisid-child' ),
+		),
+		'mooblipoisid_faq' => array(
+			'title'  => __( 'Question', 'mooblipoisid-child' ),
+			'editor' => __( 'Answer', 'mooblipoisid-child' ),
 		),
 	);
 }
@@ -838,6 +908,14 @@ function mooblipoisid_homepage_settings_defaults() {
 		'footer_legal_commission'   => 'Komisjonitingimused',
 		'footer_legal_materials'    => 'Materjalide päritolu',
 		'footer_legal_privacy'      => 'Privaatsuspoliitika',
+		// FAQ section heading (empty: rendered once the editor fills it in — the
+		// questions and answers themselves live under the FAQ menu).
+		'faq_heading'               => '',
+		'faq_sub'                   => '',
+		// SEO & Sharing (empty until an editor fills them in).
+		'seo_meta_title'            => '',
+		'seo_meta_description'      => '',
+		'seo_social_image'          => '',
 	);
 }
 
@@ -1819,6 +1897,40 @@ function mooblipoisid_homepage_settings_fields() {
 			'type'        => 'text',
 			'section'     => 'footer',
 		),
+
+		// FAQ section head.
+		'faq_heading'             => array(
+			'label'       => __( 'FAQ Section Heading', 'mooblipoisid-child' ),
+			'description' => __( 'The heading above the homepage FAQ section. The questions and answers themselves are managed under the FAQ menu.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'faq',
+		),
+		'faq_sub'                 => array(
+			'label'       => __( 'FAQ Section Subline', 'mooblipoisid-child' ),
+			'description' => __( 'The short paragraph under the FAQ heading.', 'mooblipoisid-child' ),
+			'type'        => 'textarea',
+			'section'     => 'faq',
+		),
+
+		// SEO & Sharing.
+		'seo_meta_title'          => array(
+			'label'       => __( 'SEO Meta Title', 'mooblipoisid-child' ),
+			'description' => __( 'The browser-tab and search-result title. Keep it around 60 characters.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'seo',
+		),
+		'seo_meta_description'    => array(
+			'label'       => __( 'SEO Meta Description', 'mooblipoisid-child' ),
+			'description' => __( 'The search-result snippet under the title. Keep it around 155 characters.', 'mooblipoisid-child' ),
+			'type'        => 'textarea',
+			'section'     => 'seo',
+		),
+		'seo_social_image'        => array(
+			'label'       => __( 'Social Sharing Image', 'mooblipoisid-child' ),
+			'description' => __( 'The image shown when the homepage is shared on social media. Click “Select image” to upload or choose one from the media library, or paste an image address (URL).', 'mooblipoisid-child' ),
+			'type'        => 'image',
+			'section'     => 'seo',
+		),
 	);
 }
 
@@ -1876,6 +1988,14 @@ function mooblipoisid_homepage_settings_sections() {
 		'footer'       => array(
 			'title'       => __( 'Footer', 'mooblipoisid-child' ),
 			'description' => __( 'The text pieces of the site footer: tagline, column labels, links, copyright and legal links.', 'mooblipoisid-child' ),
+		),
+		'faq'          => array(
+			'title'       => __( 'FAQ Section', 'mooblipoisid-child' ),
+			'description' => __( 'The heading of the homepage FAQ section. The questions and answers themselves are managed under the FAQ menu.', 'mooblipoisid-child' ),
+		),
+		'seo'          => array(
+			'title'       => __( 'SEO & Sharing', 'mooblipoisid-child' ),
+			'description' => __( 'How the homepage appears in search engines and when it is shared on social media.', 'mooblipoisid-child' ),
 		),
 	);
 }
@@ -1954,8 +2074,8 @@ add_action( 'admin_menu', 'mooblipoisid_add_homepage_settings_page' );
 
 /**
  * Load the media library scripts and styles for screens with media-picker
- * fields: the Homepage Settings screen and the sector term screens (the
- * "Sector Image" field).
+ * fields: the Homepage Settings screen, the sector term screens (the
+ * "Sector Image" field) and the page edit screen (the page "SEO" metabox).
  *
  * The inline script binds every `.mp-media-field` block on the screen to the
  * standard WordPress media modal (live preview, Select image, Clear image).
@@ -1969,7 +2089,18 @@ function mooblipoisid_admin_media_picker_assets( $hook_suffix ) {
 		&& isset( $_GET['taxonomy'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		&& 'sector' === sanitize_key( wp_unslash( $_GET['taxonomy'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-	if ( ! $is_homepage_settings && ! $is_sector_screen ) {
+	$is_page_editor = in_array( $hook_suffix, array( 'post.php', 'post-new.php' ), true );
+	if ( $is_page_editor ) {
+		$editor_post_type = '';
+		if ( isset( $_GET['post'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$editor_post_type = (string) get_post_type( absint( $_GET['post'] ) );
+		} elseif ( isset( $_GET['post_type'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$editor_post_type = sanitize_key( wp_unslash( $_GET['post_type'] ) );
+		}
+		$is_page_editor = ( 'page' === $editor_post_type );
+	}
+
+	if ( ! $is_homepage_settings && ! $is_sector_screen && ! $is_page_editor ) {
 		return;
 	}
 
@@ -2095,8 +2226,8 @@ add_action( 'admin_enqueue_scripts', 'mooblipoisid_admin_media_picker_assets' );
  * (see mooblipoisid_admin_media_picker_assets()), which binds every
  * `.mp-media-field` block on the screen to the WordPress media modal.
  *
- * Used by the Homepage Settings "image" fields and the "Sector Image" field on
- * the sector term screens.
+ * Used by the Homepage Settings "image" fields, the "Sector Image" field on
+ * the sector term screens and the page "SEO" metabox.
  *
  * @param string $name        Input name attribute (the submitted key).
  * @param string $field_id    Input id attribute.
@@ -2316,4 +2447,403 @@ function mooblipoisid_sanitize_homepage_settings( $input ) {
 	$stored[ $language ] = $clean;
 
 	return $stored;
+}
+
+/* ==========================================================================
+ * 4. Page SEO (regular Pages)
+ * ========================================================================== */
+
+/**
+ * Field configuration for the "SEO" meta box on regular Pages.
+ *
+ * Every page is one language's post, so these fields are single values — not
+ * stored per language like the Homepage Settings.
+ *
+ * @return array[]
+ */
+function mooblipoisid_page_seo_meta_fields() {
+	return array(
+		'_mooblipoisid_seo_title' => array(
+			'label'       => __( 'SEO Title', 'mooblipoisid-child' ),
+			'description' => __( 'The browser-tab and search-result title of this page. Keep it around 60 characters.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+		),
+		'_mooblipoisid_seo_description' => array(
+			'label'       => __( 'SEO Description', 'mooblipoisid-child' ),
+			'description' => __( 'The search-result snippet under the title. Keep it around 155 characters.', 'mooblipoisid-child' ),
+			'type'        => 'textarea',
+		),
+		'_mooblipoisid_seo_social_image' => array(
+			'label'       => __( 'Social Sharing Image', 'mooblipoisid-child' ),
+			'description' => __( 'The image shown when this page is shared on social media. Pick it from the Media Library.', 'mooblipoisid-child' ),
+			'type'        => 'image',
+		),
+	);
+}
+
+/**
+ * Add the "SEO" meta box to regular Pages.
+ */
+function mooblipoisid_add_page_seo_meta_box() {
+	add_meta_box(
+		'mooblipoisid_page_seo',
+		__( 'SEO', 'mooblipoisid-child' ),
+		'mooblipoisid_render_page_seo_meta_box',
+		'page',
+		'normal',
+		'default'
+	);
+}
+add_action( 'add_meta_boxes', 'mooblipoisid_add_page_seo_meta_box' );
+
+/**
+ * Render the "SEO" meta box for a page.
+ *
+ * @param WP_Post $post Post being edited.
+ */
+function mooblipoisid_render_page_seo_meta_box( $post ) {
+	wp_nonce_field( 'mooblipoisid_page_seo', 'mooblipoisid_page_seo_nonce' );
+	?>
+	<p class="description"><?php esc_html_e( 'How this page appears in search engines and when it is shared on social media. Everything here is optional.', 'mooblipoisid-child' ); ?></p>
+	<table class="form-table" role="presentation">
+		<tbody>
+		<?php foreach ( mooblipoisid_page_seo_meta_fields() as $key => $field ) : ?>
+			<?php
+			$value = get_post_meta( $post->ID, $key, true );
+			$value = is_scalar( $value ) ? (string) $value : '';
+			?>
+			<tr>
+				<th scope="row">
+					<label for="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $field['label'] ); ?></label>
+				</th>
+				<td>
+					<?php if ( 'image' === $field['type'] ) : ?>
+						<?php mooblipoisid_render_media_picker_field( $key, $key, $value ); ?>
+					<?php elseif ( 'textarea' === $field['type'] ) : ?>
+						<textarea name="<?php echo esc_attr( $key ); ?>" id="<?php echo esc_attr( $key ); ?>" rows="4" class="large-text code"><?php echo esc_textarea( $value ); ?></textarea>
+					<?php else : ?>
+						<input type="text" class="large-text" name="<?php echo esc_attr( $key ); ?>" id="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $value ); ?>" />
+					<?php endif; ?>
+					<p class="description"><?php echo esc_html( $field['description'] ); ?></p>
+				</td>
+			</tr>
+		<?php endforeach; ?>
+		</tbody>
+	</table>
+	<?php
+}
+
+/**
+ * Save the page SEO meta with nonce, capability and sanitization checks.
+ *
+ * Runs only for pages: the nonce below is only present on the page edit screen,
+ * and the post type is checked again before anything is stored, so revisions,
+ * autosaves and other post types are left untouched.
+ *
+ * @param int $post_id Post being saved.
+ */
+function mooblipoisid_save_page_seo_meta( $post_id ) {
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return;
+	}
+	if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
+		return;
+	}
+	if ( ! isset( $_POST['mooblipoisid_page_seo_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['mooblipoisid_page_seo_nonce'] ) ), 'mooblipoisid_page_seo' ) ) {
+		return;
+	}
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
+		return;
+	}
+	if ( 'page' !== get_post_type( $post_id ) ) {
+		return;
+	}
+
+	foreach ( mooblipoisid_page_seo_meta_fields() as $key => $field ) {
+		if ( ! isset( $_POST[ $key ] ) ) {
+			continue;
+		}
+
+		$raw = wp_unslash( $_POST[ $key ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+
+		if ( 'image' === $field['type'] ) {
+			update_post_meta( $post_id, $key, esc_url_raw( $raw ) );
+			continue;
+		}
+
+		if ( 'textarea' === $field['type'] ) {
+			update_post_meta( $post_id, $key, sanitize_textarea_field( $raw ) );
+			continue;
+		}
+
+		update_post_meta( $post_id, $key, sanitize_text_field( $raw ) );
+	}
+}
+add_action( 'save_post', 'mooblipoisid_save_page_seo_meta' );
+
+/* ==========================================================================
+ * 5. Company info (Settings → Mööblipoisid: Company info)
+ * ========================================================================== */
+
+/**
+ * The single option holding the company contact details.
+ */
+function mooblipoisid_company_info_option_name() {
+	return 'mooblipoisid_company_info';
+}
+
+/**
+ * Field configuration for the Company info screen.
+ *
+ * The address is stored once per language (`address_et`, `address_ru`,
+ * `address_en`); every other field is a single value.
+ *
+ * @return array[]
+ */
+function mooblipoisid_company_info_fields() {
+	return array(
+		'legal_name' => array(
+			'label'       => __( 'Legal Name', 'mooblipoisid-child' ),
+			'description' => __( 'The official company name, e.g. as it appears on invoices.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+		),
+		'reg_code'   => array(
+			'label'       => __( 'Registration Code', 'mooblipoisid-child' ),
+			'description' => __( 'The company registration number.', 'mooblipoisid-child' ),
+			'type'        => 'text',
+		),
+		'phone'      => array(
+			'label' => __( 'Phone', 'mooblipoisid-child' ),
+			'type'  => 'text',
+		),
+		'phone_alt'  => array(
+			'label' => __( 'Second Phone', 'mooblipoisid-child' ),
+			'type'  => 'text',
+		),
+		'email'      => array(
+			'label' => __( 'E-mail', 'mooblipoisid-child' ),
+			'type'  => 'text',
+		),
+		'email_alt'  => array(
+			'label' => __( 'Second E-mail', 'mooblipoisid-child' ),
+			'type'  => 'text',
+		),
+		'facebook'   => array(
+			'label' => __( 'Facebook URL', 'mooblipoisid-child' ),
+			'type'  => 'url',
+		),
+		'instagram'  => array(
+			'label' => __( 'Instagram URL', 'mooblipoisid-child' ),
+			'type'  => 'url',
+		),
+		'linkedin'   => array(
+			'label' => __( 'LinkedIn URL', 'mooblipoisid-child' ),
+			'type'  => 'url',
+		),
+		'address_et' => array(
+			'label' => __( 'Address (Estonian)', 'mooblipoisid-child' ),
+			'type'  => 'textarea',
+		),
+		'address_ru' => array(
+			'label' => __( 'Address (Russian)', 'mooblipoisid-child' ),
+			'type'  => 'textarea',
+		),
+		'address_en' => array(
+			'label' => __( 'Address (English)', 'mooblipoisid-child' ),
+			'type'  => 'textarea',
+		),
+	);
+}
+
+/**
+ * The address field of each language: language slug => field id.
+ *
+ * @return array
+ */
+function mooblipoisid_company_info_address_fields() {
+	return array(
+		'et' => 'address_et',
+		'ru' => 'address_ru',
+		'en' => 'address_en',
+	);
+}
+
+/**
+ * Read the company contact details, with the address of the active language.
+ *
+ * Every field is a plain string (empty until it is filled in on the screen).
+ * On top of the stored fields the array carries a resolved `address` key: the
+ * address text of the language being viewed, or an empty string when that
+ * language has no address of its own (no cross-language fallback).
+ *
+ * @return array
+ */
+function mooblipoisid_get_company_info() {
+	$stored = get_option( mooblipoisid_company_info_option_name(), array() );
+	$stored = is_array( $stored ) ? $stored : array();
+
+	$info = array();
+	foreach ( mooblipoisid_company_info_fields() as $field_id => $field ) {
+		$value = isset( $stored[ $field_id ] ) ? $stored[ $field_id ] : '';
+		$info[ $field_id ] = is_scalar( $value ) ? (string) $value : '';
+	}
+
+	$addresses = mooblipoisid_company_info_address_fields();
+	$language  = mooblipoisid_current_language_code();
+
+	$info['address'] = isset( $addresses[ $language ] ) ? $info[ $addresses[ $language ] ] : '';
+
+	return $info;
+}
+
+/**
+ * Sanitize the company info before it is stored.
+ *
+ * Text fields are stripped to single-line plain text, URL fields are stored as
+ * raw URLs and the address textareas keep their line breaks.
+ *
+ * @param array $input Raw input (one key per field).
+ * @return array Sanitized value to store.
+ */
+function mooblipoisid_sanitize_company_info( $input ) {
+	$fields = mooblipoisid_company_info_fields();
+	$input  = is_array( $input ) ? $input : array();
+	$clean  = array();
+
+	foreach ( $fields as $field_id => $field ) {
+		$value = isset( $input[ $field_id ] ) ? $input[ $field_id ] : '';
+		$value = is_scalar( $value ) ? (string) $value : '';
+
+		if ( 'textarea' === $field['type'] ) {
+			$clean[ $field_id ] = sanitize_textarea_field( $value );
+			continue;
+		}
+
+		$value = sanitize_text_field( $value );
+
+		if ( 'url' === $field['type'] ) {
+			$value = esc_url_raw( $value );
+		}
+
+		$clean[ $field_id ] = $value;
+	}
+
+	return $clean;
+}
+
+/**
+ * Register the Company info settings (Settings → Mööblipoisid: Company info).
+ */
+function mooblipoisid_register_company_info_settings() {
+	register_setting(
+		'mooblipoisid_company_info_group',
+		mooblipoisid_company_info_option_name(),
+		array(
+			'type'              => 'array',
+			'sanitize_callback' => 'mooblipoisid_sanitize_company_info',
+			'default'           => array(),
+		)
+	);
+
+	add_settings_section(
+		'mooblipoisid_company_info_main',
+		__( 'Company Details', 'mooblipoisid-child' ),
+		function () {
+			echo '<p>' . esc_html__( 'The company contact details used across the site. The address is stored once per language; the site shows the address of the language being viewed.', 'mooblipoisid-child' ) . '</p>';
+		},
+		'mooblipoisid_company_info'
+	);
+
+	foreach ( mooblipoisid_company_info_fields() as $field_id => $field ) {
+		add_settings_field(
+			$field_id,
+			$field['label'],
+			'mooblipoisid_render_company_info_field',
+			'mooblipoisid_company_info',
+			'mooblipoisid_company_info_main',
+			array(
+				'label_for' => $field_id,
+				'field_id'  => $field_id,
+				'field'     => $field,
+			)
+		);
+	}
+}
+add_action( 'admin_init', 'mooblipoisid_register_company_info_settings' );
+
+/**
+ * Add the Company info screen under Settings.
+ */
+function mooblipoisid_add_company_info_page() {
+	add_options_page(
+		__( 'Mööblipoisid: Company info', 'mooblipoisid-child' ),
+		__( 'Mööblipoisid: Company info', 'mooblipoisid-child' ),
+		'manage_options',
+		'mooblipoisid_company_info',
+		'mooblipoisid_render_company_info_page'
+	);
+}
+add_action( 'admin_menu', 'mooblipoisid_add_company_info_page' );
+
+/**
+ * Render one Company info field.
+ *
+ * @param array $args Field arguments passed from add_settings_field().
+ */
+function mooblipoisid_render_company_info_field( $args ) {
+	$field_id    = $args['field_id'];
+	$field       = $args['field'];
+	$option_name = mooblipoisid_company_info_option_name();
+
+	$options = get_option( $option_name, array() );
+	$options = is_array( $options ) ? $options : array();
+
+	$value = isset( $options[ $field_id ] ) ? $options[ $field_id ] : '';
+	$value = is_scalar( $value ) ? (string) $value : '';
+
+	$name = $option_name . '[' . $field_id . ']';
+
+	if ( 'textarea' === $field['type'] ) {
+		printf(
+			'<textarea name="%1$s" id="%2$s" rows="3" class="large-text code">%3$s</textarea>',
+			esc_attr( $name ),
+			esc_attr( $field_id ),
+			esc_textarea( $value )
+		);
+	} else {
+		printf(
+			'<input type="text" name="%1$s" id="%2$s" value="%3$s" class="large-text" />',
+			esc_attr( $name ),
+			esc_attr( $field_id ),
+			esc_attr( $value )
+		);
+	}
+
+	if ( ! empty( $field['description'] ) ) {
+		echo '<p class="description">' . esc_html( $field['description'] ) . '</p>';
+	}
+}
+
+/**
+ * Render the Company info screen.
+ */
+function mooblipoisid_render_company_info_page() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	?>
+	<div class="wrap">
+		<h1><?php esc_html_e( 'Mööblipoisid: Company info', 'mooblipoisid-child' ); ?></h1>
+		<p class="description">
+			<?php esc_html_e( 'The company contact details used across the site. Nothing here is shown on the site until it is filled in.', 'mooblipoisid-child' ); ?>
+		</p>
+		<form action="options.php" method="post">
+			<?php
+			settings_fields( 'mooblipoisid_company_info_group' );
+			do_settings_sections( 'mooblipoisid_company_info' );
+			submit_button( __( 'Save Company Info', 'mooblipoisid-child' ) );
+			?>
+		</form>
+	</div>
+	<?php
 }

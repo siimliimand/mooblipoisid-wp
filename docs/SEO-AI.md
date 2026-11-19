@@ -60,8 +60,8 @@ All of it ships with git — no DB-only hacks:
   title, answer = editor, ordered by "Order on Homepage"), Polylang
   translatability enabled, section auto-hides when a language has no items,
   FAQPage JSON-LD mirrors it automatically.
-- **New Homepage Settings sections**: **FAQ** (`faq_heading`, `faq_sub`) and
-  **SEO & Sharing** (`seo_meta_title`, `seo_meta_description`,
+- **New Homepage Settings sections**: **FAQ** (`faq_eyebrow`, `faq_heading`,
+  `faq_sub`) and **SEO & Sharing** (`seo_meta_title`, `seo_meta_description`,
   `seo_social_image`) — optional overrides; smart fallbacks exist (title falls
   back to a branded default, description falls back to the hero subline, social
   image falls back to the hero image).
@@ -203,6 +203,7 @@ Edit under **Settings → Homepage Settings → "FAQ Section"**:
 
 | Field | et | ru | en |
 | --- | --- | --- | --- |
+| Eyebrow | Korduma kippuvad | Частые вопросы | Frequently asked |
 | Heading | Korduma kippuvad küsimused | Часто задаваемые вопросы | Frequently asked questions |
 | Subline | Kõige levinumad küsimused eritellimusel mööbli kohta — tellimuse käigust, tähtaegadest ja materjalidest. | Самые частые вопросы о мебели на заказ — о ходе заказа, сроках и материалах. | The most common questions about custom furniture — the order process, lead times and materials. |
 

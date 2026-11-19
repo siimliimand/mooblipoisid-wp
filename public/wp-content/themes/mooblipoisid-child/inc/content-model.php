@@ -910,6 +910,7 @@ function mooblipoisid_homepage_settings_defaults() {
 		'footer_legal_privacy'      => 'Privaatsuspoliitika',
 		// FAQ section heading (empty: rendered once the editor fills it in — the
 		// questions and answers themselves live under the FAQ menu).
+		'faq_eyebrow'               => '',
 		'faq_heading'               => '',
 		'faq_sub'                   => '',
 		// SEO & Sharing (empty until an editor fills them in).
@@ -1899,6 +1900,12 @@ function mooblipoisid_homepage_settings_fields() {
 		),
 
 		// FAQ section head.
+		'faq_eyebrow'             => array(
+			'label'       => __( 'FAQ Section Eyebrow', 'mooblipoisid-child' ),
+			'description' => __( 'The small label above the FAQ heading (like the other homepage section labels).', 'mooblipoisid-child' ),
+			'type'        => 'text',
+			'section'     => 'faq',
+		),
 		'faq_heading'             => array(
 			'label'       => __( 'FAQ Section Heading', 'mooblipoisid-child' ),
 			'description' => __( 'The heading above the homepage FAQ section. The questions and answers themselves are managed under the FAQ menu.', 'mooblipoisid-child' ),

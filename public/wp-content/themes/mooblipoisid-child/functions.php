@@ -78,6 +78,75 @@ function mooblipoisid_image_src( $url, $size = 'large' ) {
 }
 
 /**
+ * Responsive attributes for the homepage hero image.
+ *
+ * The hero is a full-bleed, above-the-fold image, so when the stored URL maps
+ * to a media-library attachment the helper builds a srcset from the
+ * attachment's generated sizes and adds fixed `sizes="100vw"` (the hero always
+ * spans the viewport), plus explicit width/height from the full-size metadata
+ * to prevent layout shift while the image loads.
+ *
+ * @param string $url Stored hero image URL.
+ * @return array Attributes for the hero <img> (`srcset`, `sizes`, `width`,
+ *               `height`), or an empty array when the URL does not resolve to
+ *               an attachment with metadata — the caller then renders the
+ *               plain single-src fallback markup.
+ */
+function mooblipoisid_hero_image_attrs( $url ) {
+	$src = mooblipoisid_image_src( $url, 'full' );
+	if ( '' === $src || ! function_exists( 'attachment_url_to_postid' ) ) {
+		return array();
+	}
+
+	$attach_id = (int) attachment_url_to_postid( $src );
+	if ( ! $attach_id ) {
+		return array();
+	}
+
+	$attrs = array();
+
+	$srcset = wp_get_attachment_image_srcset( $attach_id, 'full' );
+	if ( $srcset ) {
+		$attrs['srcset'] = $srcset;
+		$attrs['sizes']  = '100vw';
+	}
+
+	$image = wp_get_attachment_image_src( $attach_id, 'full' );
+	if ( is_array( $image ) && ! empty( $image[1] ) && ! empty( $image[2] ) ) {
+		$attrs['width']  = (int) $image[1];
+		$attrs['height'] = (int) $image[2];
+	}
+
+	return $attrs;
+}
+
+/**
+ * Preload the homepage hero image (the LCP element) in <head>.
+ *
+ * Without the preload the browser only discovers the hero after parsing the
+ * stylesheet, which delays the Largest Contentful Paint. Fires on wp_head at
+ * an early priority, frontend only, and only on the site's front page (all
+ * language homepages, since each resolves its own Homepage Settings hero).
+ *
+ * @return void
+ */
+function mooblipoisid_lcp_hero_preload() {
+	if ( ! is_front_page() ) {
+		return;
+	}
+
+	$settings = function_exists( 'mooblipoisid_get_homepage_settings' ) ? mooblipoisid_get_homepage_settings() : array();
+	$src      = isset( $settings['hero_image'] ) ? mooblipoisid_image_src( $settings['hero_image'], 'full' ) : '';
+
+	if ( '' === $src ) {
+		return;
+	}
+
+	echo '<link rel="preload" as="image" href="' . esc_url( $src ) . '" fetchpriority="high">' . "\n";
+}
+add_action( 'wp_head', 'mooblipoisid_lcp_hero_preload', 2 );
+
+/**
  * Translate the footer widget / legal-bar text (stored as plain Estonian HTML
  * in the database) with the per-language values from the Homepage Settings
  * screen. The stored HTML keeps its structure; only the known Estonian text
@@ -198,6 +267,26 @@ function mooblipoisid_translate_footer_html( $content ) {
 		$content = str_replace( $source, $replacement, $content );
 	}
 
+	/*
+	 * Homepage anchors (e.g. /#consultation) must land on the current
+	 * language's homepage. Only non-default languages are rewritten here, so
+	 * the Estonian footer markup stays byte-identical to what is stored. The
+	 * Explore menu and legal links already resolve per language further up, so
+	 * this only ever matches plain `/#anchor` links.
+	 */
+	if (
+		function_exists( 'pll_current_language' )
+		&& function_exists( 'pll_default_language' )
+		&& function_exists( 'pll_home_url' )
+	) {
+		$current = pll_current_language( 'slug' );
+		$default = pll_default_language( 'slug' );
+		if ( $current && $default && $current !== $default ) {
+			$home    = untrailingslashit( pll_home_url() );
+			$content = preg_replace( '#href="/#([^"]*)"#', 'href="' . esc_attr( $home ) . '#$1"', $content );
+		}
+	}
+
 	return $content;
 }
 add_filter( 'widget_custom_html_content', 'mooblipoisid_translate_footer_html', 10, 1 );
@@ -238,6 +327,38 @@ function mooblipoisid_translate_header_button_label( $value ) {
 add_filter( 'theme_mod_header_button_label', 'mooblipoisid_translate_header_button_label', 10, 1 );
 
 /**
+ * Point the Kadence header CTA at the current language's homepage.
+ *
+ * The button link is one global theme mod, typically an anchor like
+ * `/#consultation`. Anchors must land on the language-specific homepage, so
+ * homepage-anchored links are rewritten per language; links with a real path
+ * (other pages) or external URLs pass through untouched.
+ *
+ * @param mixed $value Theme mod value.
+ * @return mixed Filtered value.
+ */
+function mooblipoisid_translate_header_button_link( $value ) {
+	if ( ! is_string( $value ) || '' === trim( $value ) ) {
+		return $value;
+	}
+
+	$parts = wp_parse_url( $value );
+	if ( empty( $parts['fragment'] ) || isset( $parts['query'] ) ) {
+		return $value;
+	}
+
+	// Anything with a path beyond the site root points at a page, not home.
+	if ( isset( $parts['path'] ) && '' !== trim( $parts['path'], '/' ) ) {
+		return $value;
+	}
+
+	$home = function_exists( 'pll_home_url' ) ? pll_home_url() : home_url( '/' );
+
+	return trailingslashit( $home ) . '#' . (string) $parts['fragment'];
+}
+add_filter( 'theme_mod_header_button_link', 'mooblipoisid_translate_header_button_link', 10, 1 );
+
+/**
  * Render a language switcher dropdown (with flags) for the site header.
  *
  * The switcher shows the current language (flag + name + caret); activating it
@@ -269,12 +390,22 @@ function mooblipoisid_header_language_switcher() {
 	}
 
 	$uid = 'mp-lang-switcher-' . wp_unique_id();
+
+	/*
+	 * Polylang builds the flag URLs from WP_PLUGIN_URL, which follows the
+	 * `siteurl` option and can still carry http:// after a move to https —
+	 * producing mixed-content warnings on production. Force the https scheme
+	 * (non-http flag sources pass through set_url_scheme() unchanged).
+	 */
+	$mp_flag_src = static function ( $flag_url ) {
+		return esc_url( set_url_scheme( (string) $flag_url, 'https' ) );
+	};
 	?>
 	<div class="mp-langswitch site-header-item site-header-focus-item" data-section="mooblipoisid_language_switcher">
 		<button type="button" class="mp-langswitch__toggle" id="<?php echo esc_attr( $uid ); ?>"
 			aria-haspopup="true" aria-expanded="false" aria-controls="<?php echo esc_attr( $uid ); ?>-menu"
 			data-mp-langswitch-toggle>
-			<img class="mp-langswitch__flag" src="<?php echo esc_url( $current['flag'] ); ?>" alt="<?php echo esc_attr( $current['name'] ); ?>" width="20" height="15">
+			<img class="mp-langswitch__flag" src="<?php echo $mp_flag_src( $current['flag'] ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in the closure ?>" alt="<?php echo esc_attr( $current['name'] ); ?>" width="20" height="15">
 			<svg class="mp-langswitch__caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
 		</button>
 		<ul class="mp-langswitch__menu" id="<?php echo esc_attr( $uid ); ?>-menu" role="menu" aria-labelledby="<?php echo esc_attr( $uid ); ?>" hidden>
@@ -285,7 +416,7 @@ function mooblipoisid_header_language_switcher() {
 						href="<?php echo esc_url( $lang['url'] ); ?>"
 						<?php if ( $is_current ) : ?>aria-current="true"<?php endif; ?>
 						hreflang="<?php echo esc_attr( $lang['slug'] ); ?>" lang="<?php echo esc_attr( $lang['locale'] ); ?>">
-						<img class="mp-langswitch__flag" src="<?php echo esc_url( $lang['flag'] ); ?>" alt="<?php echo esc_attr( $lang['name'] ); ?>" width="20" height="15">
+						<img class="mp-langswitch__flag" src="<?php echo $mp_flag_src( $lang['flag'] ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in the closure ?>" alt="<?php echo esc_attr( $lang['name'] ); ?>" width="20" height="15">
 					</a>
 				</li>
 			<?php endforeach; ?>

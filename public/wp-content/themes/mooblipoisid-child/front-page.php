@@ -22,8 +22,7 @@ defined( 'ABSPATH' ) || exit;
 get_header();
 ?>
 
-<main id="inner-wrap" class="wrap kt-clear" role="main">
-	<div id="primary" class="content-area">
+<div id="primary" class="content-area">
 		<div class="content-container site-container">
 			<div id="main" class="site-main">
 				<div class="content-wrap">
@@ -41,6 +40,7 @@ get_header();
 								'process',
 								'ethos',
 								'stories',
+								'faq',
 								'consultation',
 							);
 
@@ -66,7 +66,7 @@ get_header();
 			</div>
 		</div>
 	</div>
-</main>
+</div>
 
 <?php
 get_footer();
